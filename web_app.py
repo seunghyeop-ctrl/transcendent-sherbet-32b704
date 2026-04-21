@@ -2125,7 +2125,7 @@ def run_server(host: str, port: int, open_browser: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="PromptExtractor web server")
-    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--host", default=__import__('os').environ.get('PROMPT_EXTRACTOR_HOST', '0.0.0.0'))
     parser.add_argument("--port", type=int, default=int(__import__('os').environ.get('PORT', '5001')))
     parser.add_argument("--open-browser", action="store_true")
     args = parser.parse_args()
