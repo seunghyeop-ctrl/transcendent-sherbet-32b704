@@ -24,6 +24,12 @@
 - `GOOGLE_CREDENTIALS_JSON`
 - `PROMPT_EXTRACTOR_APP_DIR` (선택)
 
+Render에서는 아래 기본값을 권장합니다.
+- `PROMPT_EXTRACTOR_APP_DIR=/tmp/prompt-extractor-app`
+- `PROMPT_EXTRACTOR_OUTPUT_DIR=/tmp/prompt-extractor-data`
+
+이 프로젝트는 Google Sheets를 메인 저장소로 사용하는 구조라, Render 컨테이너의 임시 파일 시스템을 써도 운영이 가능합니다.
+
 `GOOGLE_CREDENTIALS_JSON`을 넣으면 서버 시작 시 운영체제별 앱 데이터 폴더의 `credentials.json`에 자동으로 써집니다.
 
 기본 앱 데이터 폴더:
@@ -57,7 +63,7 @@ export GEMINI_API_KEY=...
 export PROMPT_EXTRACTOR_GOOGLE_SHEET_ID=...
 export PROMPT_EXTRACTOR_WORKSHEET=Sheet1
 export GOOGLE_CREDENTIALS_JSON='{"type":"service_account",...}'
-python3 app.py --host 0.0.0.0 --port 5001 --no-browser
+python3 app.py --host 0.0.0.0 --port 5001
 ```
 
 ## 외부 접속

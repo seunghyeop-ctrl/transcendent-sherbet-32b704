@@ -858,42 +858,46 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         return '''
 <div class="brand">
   <div class="brand-mark grommy-logo" aria-label="Grommy G 로고">
-    <svg width="34" height="34" viewBox="0 0 84 84" fill="none" aria-hidden="true">
+    <svg width="36" height="36" viewBox="0 0 92 92" fill="none" aria-hidden="true">
       <defs>
-        <linearGradient id="gStroke" x1="10" y1="12" x2="73" y2="73" gradientUnits="userSpaceOnUse">
+        <linearGradient id="gCloudStroke" x1="11" y1="16" x2="80" y2="73" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#8cf9ff"/>
-          <stop offset="55%" stop-color="#59dbe9"/>
-          <stop offset="100%" stop-color="#3dbbd3"/>
+          <stop offset="60%" stop-color="#45dbe8"/>
+          <stop offset="100%" stop-color="#37b8d1"/>
         </linearGradient>
-        <linearGradient id="gDepth" x1="18" y1="18" x2="70" y2="70" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#2f3d67"/>
-          <stop offset="100%" stop-color="#1d2544"/>
+        <linearGradient id="gCloudFill" x1="18" y1="18" x2="76" y2="76" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#25325a"/>
+          <stop offset="55%" stop-color="#1a2342"/>
+          <stop offset="100%" stop-color="#141c35"/>
         </linearGradient>
-        <linearGradient id="gWhite" x1="15" y1="8" x2="48" y2="58" gradientUnits="userSpaceOnUse">
+        <linearGradient id="gLetterFill" x1="18" y1="10" x2="56" y2="62" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="100%" stop-color="#e8f7ff"/>
+          <stop offset="100%" stop-color="#e7f5ff"/>
+        </linearGradient>
+        <linearGradient id="gGlow" x1="20" y1="20" x2="86" y2="78" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#52f0eb"/>
+          <stop offset="100%" stop-color="#4d88ff"/>
         </linearGradient>
       </defs>
-      <path d="M63 31.5c6.7 0 12.3 5 13 11.5 4.5.8 8 4.8 8 9.6C84 58.9 78.7 64 72.3 64H32.5C18.4 64 7 53.2 7 39.9c0-10.8 7.4-19.8 17.5-22.7C28 9.8 35.8 5 44.8 5 55.6 5 64.6 12 67.6 21.5c6.6 1 11.8 6 11.8 12.2 0 1.3-.2 2.5-.4 3.7-.8-3.5-3.8-5.9-7.8-5.9-.9 0-1.6 0-2.2.1C67.3 31.6 65.1 31.5 63 31.5Z" fill="url(#gDepth)"/>
-      <path d="M60.8 29c6.1 0 11.1 4.4 12.1 10.3 4.5.8 7.8 4.5 7.8 9 0 5.3-4.4 9.6-9.9 9.6H32.1C19.8 57.9 9.8 48.6 9.8 37.1c0-9.2 6.6-17.2 15.7-19.4C28.5 10.7 35.1 6.4 43 6.4c9.5 0 17.3 6.2 19.9 14.8.8-.2 1.7-.2 2.5-.2Z" fill="none" stroke="url(#gStroke)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M34.8 17c-13 0-23.3 10.1-23.3 22.8 0 12.7 10.3 22.8 23.3 22.8 7.1 0 12.4-2.2 16.4-6.3V43.8H34.2v7.9h7.7c-1.7 2.8-4.7 4.6-8.5 4.6-7 0-12.7-5.6-12.7-12.6s5.7-12.6 12.7-12.6c3.3 0 6.2 1.2 8.6 3.3l5.6-5.5C44 19 39.4 17 34.8 17Z" fill="url(#gWhite)"/>
-      <path d="M57.8 56.4c0-8.4 6.7-15.1 15.1-15.1 4.3 0 8.2 1.8 10.9 4.7-1.5-7-7.9-12.3-15.4-12.3-8.6 0-15.6 6.9-15.6 15.5 0 7.5 5.3 13.9 12.3 15.4-4.5-1.8-7.3-4.8-7.3-8.5Z" fill="url(#gStroke)" opacity="0.18"/>
+      <path d="M67.6 31.5c6.6 0 12 4.8 12.9 11.1 4.4.8 7.7 4.5 7.7 8.9 0 5.3-4.3 9.7-9.8 9.7H34.5c-14.5 0-26.3-11.2-26.3-25.1 0-11 7.4-20.4 17.8-23.5C29.2 7.3 37.3 3 46.6 3 57.7 3 67 9.8 70 19.5c.8-.1 1.6-.2 2.4-.2Z" fill="url(#gCloudFill)"/>
+      <path d="M65.8 30.4c6.1 0 11.2 4.4 12.3 10.3 4.5.8 7.9 4.6 7.9 9.2 0 5.5-4.6 10-10.2 10H34.3c-14 0-25.3-10.7-25.3-24 0-10.9 7.6-20.1 18-22.8C30.2 8 37.2 4 45.4 4c9.9 0 18.1 6.1 21 14.7.9-.2 1.8-.3 2.7-.3Z" fill="none" stroke="url(#gCloudStroke)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M35.4 17c-13 0-23.7 10.3-23.7 23 0 12.6 10.7 22.9 23.7 22.9 9.8 0 16.4-4.6 20.4-11.6V38.6H38.6v8.1h7.9c-1.7 4.6-5.7 7.4-11.2 7.4-7.2 0-13.1-5.7-13.1-12.8 0-7 5.9-12.8 13.1-12.8 3.4 0 6.6 1.3 9.1 3.6l6.2-6.1C46.6 19.2 41.2 17 35.4 17Z" fill="url(#gLetterFill)"/>
+      <path d="M57.6 56c0-8.7 7-15.7 15.7-15.7 4.5 0 8.6 1.9 11.4 5-1.6-7.3-8.3-12.8-16.1-12.8-9.1 0-16.5 7.3-16.5 16.4 0 8 5.8 14.8 13.6 16.1-5.2-1.6-8.1-4.8-8.1-9Z" fill="url(#gGlow)" opacity="0.22"/>
     </svg>
   </div>
   <div>
     <div class="brand-name">Grommy G</div>
-    <div class="brand-sub">Reference cloud workspace</div>
   </div>
 </div>'''.strip()
 
     def _build_layout_overrides(self) -> str:
         return """
 
-  .main { max-width: none; width: calc(100vw - 248px); padding: 14px 20px 20px; }
+  .main { max-width: none; width: calc(100vw - 248px); padding: 14px 22px 20px; }
   .workspace-shell {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr);
-    gap: 0;
+    gap: 18px;
     min-height: calc(100vh - 28px);
     align-items: start;
   }
@@ -901,8 +905,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     min-width: 0;
     max-height: calc(100vh - 28px);
     overflow-y: scroll;
-    padding-right: 20px;
-    border-right: 1px solid var(--line);
+    padding-right: 8px;
     scrollbar-gutter: stable;
   }
   .workspace-left::-webkit-scrollbar,
@@ -922,17 +925,17 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     position: sticky;
     top: 0;
     height: calc(100vh - 28px);
-    padding-left: 20px;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    align-self: start;
   }
   .assistant-panel {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    min-height: 100%;
+    min-height: calc(100vh - 28px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -960,22 +963,24 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     resize: vertical;
   }
   .hub-topbar {
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+    margin-bottom: 10px;
   }
   .hub-metrics {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    justify-content: flex-end;
+    gap: 6px;
+    justify-content: flex-start;
   }
   .hub-pill {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 8px 10px;
-    min-width: 108px;
+    padding: 7px 10px;
+    min-width: 96px;
     box-shadow: var(--shadow-sm);
   }
   .hub-pill-label {
@@ -985,11 +990,16 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     letter-spacing: 0.02em;
   }
   .hub-pill-value {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
-  .hub-strip { display:none; }
+  .hub-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
   .mini-card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -998,13 +1008,28 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     box-shadow: var(--shadow-sm);
   }
   .brand-mark.grommy-logo {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%), linear-gradient(145deg, #1f2946 0%, #1d2441 50%, #18203a 100%);
-    box-shadow: inset 0 0 0 1px rgba(101, 236, 235, 0.22), 0 10px 26px rgba(12, 20, 41, 0.28);
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: radial-gradient(circle at 30% 24%, rgba(255,255,255,0.14), rgba(255,255,255,0) 42%), linear-gradient(145deg, #1b2445 0%, #1a223d 48%, #15203a 100%);
+    box-shadow: inset 0 0 0 1px rgba(90, 240, 239, 0.18), 0 12px 26px rgba(11, 18, 37, 0.34);
   }
-  .brand-sub { letter-spacing: 0.01em; text-transform:none; }
+  .brand-sub { display:none; }
+  .brand-name { letter-spacing: -0.02em; }
+  .hub-topbar .page-title { margin-bottom: 4px; }
+  .hub-strip .mini-card:last-child { justify-self: end; width: min(280px, 100%); }
+  .hub-inline-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hub-inline-meta .card-sub { margin: 0; }
+  .assistant-panel .chat-header { padding: 18px 18px 14px; }
+  .assistant-panel .chat-body { padding: 18px 18px 12px; }
+  .assistant-panel .chat-context { background: transparent; }
+  .assistant-panel .context-scroll { padding: 0 18px 18px; }
+  .assistant-panel .chat-composer { padding: 16px 18px 18px; }
   .topbar-actions .topbar-status { white-space: nowrap; }
   .assistant-header-actions { margin-left: auto; display: flex; gap: 8px; }
   .assistant-empty {
@@ -1048,10 +1073,9 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
       max-height: none;
       overflow: visible;
       padding-right: 0;
-      border-right: 0;
     }
     .workspace-sidepanel { display: none; }
-    .hub-strip { display:block; }
+    .hub-strip { grid-template-columns: 1fr; }
   }
 """
 
@@ -1106,10 +1130,6 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         <div class="hub-pill-value" id="metric-results-count">{len(recent_results)}</div>
       </div>
       <div class="hub-pill">
-        <div class="hub-pill-label">최근 성공률</div>
-        <div class="hub-pill-value" id="metric-success-rate">{success_rate}%</div>
-      </div>
-      <div class="hub-pill">
         <div class="hub-pill-label">추정 비용</div>
         <div class="hub-pill-value" id="metric-session-cost">₩{current_session_cost:.0f}</div>
       </div>
@@ -1118,15 +1138,18 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 
   <div class="hub-strip">
     <div class="mini-card">
-      <div class="card-title">레퍼런스 통계</div>
+      <div class="card-title">카메라 태깅 현황</div>
       <div class="card-sub">현재 아카이브에 저장된 카메라 분류 {len(camera_counter)}개</div>
       <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
         {''.join(f'<span class="tag">{self._escape(camera)}</span>' for camera, _ in camera_counter.most_common(6)) or '<span class="tag tag-muted">아직 태그 없음</span>'}
       </div>
     </div>
     <div class="mini-card">
-      <div class="card-title">연동 바로가기</div>
-      <div class="card-sub">왼쪽 2/3 작업영역과 우측 AI 패널을 함께 사용하는 운영 뷰</div>
+      <div class="card-title">레퍼런스 허브</div>
+      <div class="hub-inline-meta" style="margin-top:8px;">
+        <div class="card-sub">최근 성공률 <strong id="metric-success-rate" style="color:var(--ink);">{success_rate}%</strong></div>
+        <div class="card-sub">작업공간 고정 패널 모드</div>
+      </div>
       <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
         {sheet_button}
         <button class="btn btn-primary" onclick="switchView('run')">새 추출 시작</button>
@@ -1297,7 +1320,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
       <div class="chat-avatar">G</div>
       <div>
         <div class="chat-title">AI 시나리오 어시스턴트</div>
-        <div class="chat-meta">우측 고정 패널 · 아카이브 레퍼런스 기반 그루밍</div>
+        <div class="chat-meta">우측 1/3 고정 패널 · 아카이브 레퍼런스 기반 그루밍</div>
       </div>
       <div class="assistant-header-actions">
         <form method="post" action="/chat/clear">
