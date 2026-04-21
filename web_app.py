@@ -1491,7 +1491,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
   <div class="topbar">
     <div>
       <div class="page-title">설정</div>
-      <div class="page-sub">Google Sheets 연동과 Gemini API만 관리합니다. 현재 구조는 로컬 설정 파일과 Keychain을 그대로 사용합니다.</div>
+      <div class="page-sub">Google Sheets 연동과 Gemini API만 관리합니다. 설정은 운영체제별 사용자 데이터 폴더에 저장됩니다.</div>
     </div>
   </div>
 
@@ -1528,7 +1528,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
           <div class="field-row">
             <input class="field-input" value="{self._escape_attr(credentials_path)}" readonly style="flex:1;">
           </div>
-          <div class="field-hint">서비스 계정 JSON 위치입니다. 현재 웹 UI에서는 경로 표시만 하고, 실제 파일 선택은 로컬 환경에서 관리합니다.</div>
+          <div class="field-hint">서비스 계정 JSON 위치입니다. 운영체제에 따라 앱 데이터 폴더 경로가 달라질 수 있습니다.</div>
         </div>
 
         <div class="field" style="margin-bottom:0;">
@@ -1551,7 +1551,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         <div class="field">
           <label class="field-label">Gemini API Key</label>
           <input class="field-input" name="gemini_api_key" type="password" placeholder="새 키로 바꿀 때만 입력하세요">
-          <div class="field-hint">키는 파일이 아니라 시스템 Keychain에 저장됩니다.</div>
+          <div class="field-hint">키는 환경변수, 시스템 보안 저장소 또는 로컬 비밀값 저장소 중 사용 가능한 방식으로 안전하게 보관됩니다.</div>
         </div>
 
         <div class="field" style="margin-bottom:0;">

@@ -22,8 +22,16 @@
 - `PROMPT_EXTRACTOR_OUTPUT_DIR`
 - `PROMPT_EXTRACTOR_CREDENTIALS_PATH`
 - `GOOGLE_CREDENTIALS_JSON`
+- `PROMPT_EXTRACTOR_APP_DIR` (선택)
 
-`GOOGLE_CREDENTIALS_JSON`을 넣으면 서버 시작 시 `~/Library/Application Support/PromptExtractor/credentials.json`에 자동으로 써집니다.
+`GOOGLE_CREDENTIALS_JSON`을 넣으면 서버 시작 시 운영체제별 앱 데이터 폴더의 `credentials.json`에 자동으로 써집니다.
+
+기본 앱 데이터 폴더:
+- macOS: `~/Library/Application Support/PromptExtractor`
+- Windows: `%APPDATA%\\PromptExtractor`
+- Linux: `~/.config/PromptExtractor`
+
+`PROMPT_EXTRACTOR_APP_DIR`를 주면 이 기본 경로 대신 원하는 위치를 강제로 사용할 수 있습니다.
 
 ## Docker 실행 예시
 ```bash
@@ -61,3 +69,19 @@ python3 app.py --host 0.0.0.0 --port 5001 --no-browser
 - 결과 CSV/XLSX: `PROMPT_EXTRACTOR_OUTPUT_DIR/outputs`
 - 링크 실행 시 영상/프레임은 임시 폴더에서만 처리되고, 작업 후 자동 삭제됩니다.
 - Google Sheets는 자동 업데이트됩니다.
+
+## 코드 동기화
+
+배포 서버와 개발용 PC/맥북의 코드는 Git 원격 저장소로 관리하는 것을 권장합니다.
+
+추천 순서:
+1. 로컬 저장소를 GitHub private repo에 push
+2. 배포 서버에서는 그 저장소를 clone
+3. 집/회사/윈도우 환경에서는 같은 저장소를 pull 해서 작업
+
+민감 정보는 Git에 올리지 않습니다.
+- `credentials.json`
+- API 키
+- `config.json`
+- `secrets.json`
+- 로컬 결과물
