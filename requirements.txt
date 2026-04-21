@@ -1,0 +1,14 @@
+# 필수 패키지
+yt-dlp>=2024.1.0
+anthropic>=0.34.0
+gspread>=6.0.0
+google-auth>=2.0.0
+google-genai>=1.73.0
+openpyxl>=3.1.5
+
+# OCR (둘 중 하나 선택)
+easyocr>=1.7.0        # 권장: 한/영 동시 지원, 설치 후 첫 실행 시 모델 다운로드
+# pytesseract>=0.3.10  # 대안: 가벼움, 별도 Tesseract 설치 필요
+
+# 이미지 처리
+Pillow>=10.0.0

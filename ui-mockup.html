@@ -1,0 +1,2504 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grommy · AI Prompt Groomer</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%232f6a54'/%3E%3Cpath d='M13.5 29c-3.6 0-6.5-2.6-6.5-6 0-3 2.3-5.5 5.3-5.9C13.2 13.4 16.7 10.5 21 10.5c4.4 0 8 3 8.7 7 3.3.5 5.8 3.3 5.8 6.7 0 3.7-3 6.7-6.7 6.8H13.5z' fill='white'/%3E%3Cpath d='M30.5 10.2l.95 2.2 2.2.95-2.2.95-.95 2.2-.95-2.2-2.2-.95 2.2-.95z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f1ea;
+    --surface: #ffffff;
+    --surface-2: #faf7f0;
+    --surface-3: #f0ece2;
+    --ink: #1d2a24;
+    --ink-2: #3c4a42;
+    --muted: #7a857e;
+    --line: #e2ddd0;
+    --line-2: #ece7da;
+    --accent: #2f6a54;
+    --accent-hover: #255443;
+    --accent-soft: #e5f0ea;
+    --accent-ink: #1e4a3b;
+    --warn: #b4601f;
+    --warn-soft: #fbeedc;
+    --danger: #a33d33;
+    --danger-soft: #fbe6e2;
+    --success: #2f6a54;
+    --chip: #eef4f0;
+    --shadow-sm: 0 1px 2px rgba(29, 42, 36, 0.05);
+    --shadow-md: 0 4px 16px rgba(29, 42, 36, 0.06);
+    --shadow-lg: 0 20px 48px rgba(29, 42, 36, 0.09);
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+  button, input, textarea, select { font-family: inherit; letter-spacing: inherit; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ====== App shell ====== */
+  .app {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ====== Sidebar ====== */
+  .sidebar {
+    background: var(--surface-2);
+    border-right: 1px solid var(--line);
+    padding: 22px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 20px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2f6a54 0%, #4a8a72 55%, #6aab8e 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.14), 0 2px 8px rgba(47,106,84,0.25);
+    flex-shrink: 0;
+  }
+  .brand-mark svg { display: block; }
+  .brand-name { font-weight: 700; font-size: 15px; letter-spacing: -0.02em; }
+  .brand-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .nav-group { margin-top: 8px; }
+  .nav-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 10px 10px 6px;
+    font-weight: 600;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink-2);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--surface-3); }
+  .nav-item.active {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+  }
+  .nav-item .dot { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
+  .nav-item.active .dot { color: var(--accent); }
+  .nav-item .count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface-3);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .nav-item.active .count { background: var(--accent-soft); color: var(--accent-ink); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 14px 10px 4px;
+    border-top: 1px solid var(--line-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4c2a3, #a98b5d);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-meta { font-size: 11px; color: var(--muted); }
+
+  /* ====== Main ====== */
+  .main {
+    padding: 28px 36px 60px;
+    max-width: 1320px;
+    width: 100%;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .topbar-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 11px 6px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(47,106,84,0.18);
+  }
+
+  /* ====== Buttons ====== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--surface);
+    color: var(--ink-2);
+    border-color: var(--line);
+  }
+  .btn:hover { background: var(--surface-3); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+  .btn-ghost:hover { background: var(--surface-3); }
+  .btn-danger-ghost { background: transparent; border-color: transparent; color: var(--danger); }
+  .btn-danger-ghost:hover { background: var(--danger-soft); }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .btn-lg { padding: 12px 18px; font-size: 14px; }
+
+  /* ====== Cards ====== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .card-header-action { margin-left: auto; }
+
+  /* ====== KPI grid ====== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-label { font-size: 12px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 6px;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-delta { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .kpi-delta.up { color: var(--success); }
+  .kpi-delta.down { color: var(--danger); }
+  .kpi-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ====== Run section ====== */
+  .run-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .input-wrap {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .input-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 6px 6px 0;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .input-tab {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+  .input-tab.active {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line-2);
+    border-bottom-color: var(--surface);
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+  }
+  .input-area {
+    width: 100%;
+    min-height: 200px;
+    padding: 14px 16px;
+    border: none;
+    background: var(--surface);
+    resize: vertical;
+    font-size: 13.5px;
+    line-height: 1.7;
+    outline: none;
+    color: var(--ink);
+  }
+  .input-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--line-2);
+    flex-wrap: wrap;
+  }
+  .input-hint { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .input-hint strong { color: var(--ink-2); font-weight: 600; }
+  .input-actions { margin-left: auto; display: flex; gap: 8px; }
+
+  /* ====== Progress card ====== */
+  .progress-card {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .progress-title { font-size: 14px; font-weight: 700; }
+  .progress-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--surface-3);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 62%;
+    background: linear-gradient(90deg, #2f6a54, #4a8a72);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .progress-summary {
+    font-size: 13px;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    word-break: break-all;
+  }
+  .activity-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+  .activity-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+  }
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    background: var(--success);
+  }
+  .activity-item.fail .activity-dot { background: var(--danger); }
+  .activity-url { color: var(--ink); font-weight: 500; word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+  .activity-msg { color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+  .activity-time { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+  /* ====== Results section ====== */
+  .results-section { margin-top: 10px; }
+  .results-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+  }
+  .search-box svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+  .search-input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search-input:focus { border-color: var(--accent); background: var(--surface); }
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line-2);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; margin-right: 4px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    background: var(--chip);
+    color: var(--ink-2);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .chip:hover { background: var(--accent-soft); color: var(--accent-ink); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip .count { font-size: 10.5px; color: var(--muted); margin-left: 2px; }
+  .chip.active .count { color: rgba(255,255,255,0.8); }
+
+  .results-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 13px;
+  }
+  .results thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .results tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line-2);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .results tbody tr:last-child td { border-bottom: none; }
+  .results tbody tr:hover { background: var(--surface-2); }
+  .col-thumb { width: 70px; }
+  .col-camera { width: 19%; }
+  .col-prompt { width: 38%; }
+  .col-content { width: 22%; }
+  .col-meta { width: 14%; }
+  .col-actions { width: 56px; }
+
+  .thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #e7e0cf 0%, #cdc5af 100%);
+    color: #847a5f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    overflow: hidden;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  .tag.tag-muted { background: var(--surface-3); color: var(--muted); font-style: italic; }
+
+  .prompt-text {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .content-text { color: var(--ink); font-size: 13px; }
+  .meta-col { font-size: 12px; color: var(--muted); }
+  .meta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .meta-link:hover { text-decoration: underline; }
+  .row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn:hover { background: var(--surface-3); color: var(--ink); }
+
+  /* ====== Settings drawer ====== */
+  .settings-section {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    margin-top: 8px;
+  }
+  .settings-nav { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 20px; }
+  .settings-nav-item {
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--ink-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    font-weight: 500;
+  }
+  .settings-nav-item.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); font-weight: 600; }
+  .settings-nav-item:hover:not(.active) { background: var(--surface-3); }
+
+  .field { margin-bottom: 18px; }
+  .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+  .field-hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .field-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,106,84,0.1); }
+  .field-row { display: flex; gap: 10px; align-items: center; }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .status-pill.ok { background: var(--accent-soft); color: var(--accent-ink); }
+  .status-pill.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* ====== Views ====== */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ====== Empty state on Library ====== */
+  .empty-row td { text-align: center; padding: 56px 16px; color: var(--muted); }
+
+  /* ====== Chat (Generate) view ====== */
+  .chat-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 16px;
+    height: calc(100vh - 170px);
+    min-height: 560px;
+  }
+  .chat-main {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-2);
+    background: var(--surface-2);
+  }
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #2f6a54, #4a8a72);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: -0.02em;
+  }
+  .chat-title { font-weight: 700; font-size: 14px; }
+  .chat-meta { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .chat-header-actions { margin-left: auto; display: flex; gap: 6px; }
+
+  .chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--surface);
+  }
+  .chat-msg { display: flex; gap: 10px; max-width: 85%; }
+  .chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .chat-bubble {
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .chat-msg.ai .chat-bubble { background: var(--surface-2); border: 1px solid var(--line-2); color: var(--ink); border-top-left-radius: 4px; }
+  .chat-msg.user .chat-bubble { background: var(--accent); color: #fff; border-top-right-radius: 4px; }
+  .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #2f6a54, #4a8a72);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .chat-msg.user .msg-avatar { background: linear-gradient(135deg, #d4c2a3, #a98b5d); }
+  .ai-response-prompt {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #1d2a24;
+    color: #e7efe9;
+    font-size: 12.5px;
+    line-height: 1.65;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .ai-response-prompt .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 9px;
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .ai-response-prompt .copy-btn:hover { background: rgba(255,255,255,0.18); }
+  .ai-refs {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ai-ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 6px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-size: 11.5px;
+    cursor: pointer;
+    border: 1px solid #d0e2d8;
+  }
+  .ai-ref-pill .ref-num {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .chat-composer {
+    border-top: 1px solid var(--line-2);
+    padding: 12px;
+    background: var(--surface-2);
+  }
+  .chat-templates {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .template-chip {
+    padding: 5px 10px;
+    font-size: 11.5px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .template-chip:hover { background: var(--accent-soft); color: var(--accent-ink); border-color: #d0e2d8; }
+  .composer-box {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .composer-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,106,84,0.08); }
+  .composer-input {
+    border: 0;
+    outline: none;
+    resize: none;
+    width: 100%;
+    font-size: 13.5px;
+    line-height: 1.6;
+    min-height: 60px;
+    background: transparent;
+  }
+  .composer-actions { display: flex; align-items: center; gap: 8px; }
+  .composer-actions .icon-btn.small { width: 26px; height: 26px; }
+  .composer-actions .send { margin-left: auto; }
+
+  .chat-context {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .context-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line-2);
+    background: var(--surface-2);
+  }
+  .context-title { font-weight: 700; font-size: 13.5px; }
+  .context-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .context-scroll { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .context-card {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line-2);
+    background: var(--surface-2);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .context-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .context-card-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .context-card-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .context-card-rule { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .context-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
+  .context-card-tags .tag { font-size: 10.5px; padding: 2px 6px; }
+  .context-card-body {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* ====== Library detail drawer ====== */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(29, 42, 36, 0.35);
+    backdrop-filter: blur(2px);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(520px, 92vw);
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--line-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .drawer-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e7e0cf, #cdc5af);
+    color: #847a5f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .drawer-title { font-size: 14px; font-weight: 700; }
+  .drawer-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .drawer-close {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drawer-close:hover { background: var(--surface-3); }
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .drawer-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .drawer-preview {
+    border: 1px solid var(--line-2);
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #d9d1be 0%, #aca28a 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .drawer-preview::after {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  .drawer-preview::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    border-style: solid;
+    border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent #2f6a54;
+    margin-left: 4px;
+  }
+  .drawer-prompt {
+    padding: 14px;
+    background: #1d2a24;
+    color: #e7efe9;
+    border-radius: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .drawer-prompt .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .drawer-kv {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 8px 14px;
+    font-size: 12.5px;
+  }
+  .drawer-kv dt { color: var(--muted); font-weight: 500; }
+  .drawer-kv dd { margin: 0; color: var(--ink); }
+  .drawer-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--line-2);
+    display: flex;
+    gap: 8px;
+    background: var(--surface-2);
+  }
+  .drawer-footer .btn { flex: 1; justify-content: center; }
+  tr.clickable-row { cursor: pointer; }
+
+  /* ====== About page ====== */
+  .about-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    padding: 54px 48px 48px;
+    background: linear-gradient(135deg, #1d2a24 0%, #2f6a54 60%, #4a8a72 100%);
+    color: #fff;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-lg);
+  }
+  .about-hero::before {
+    content: '';
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+  .about-hero::after {
+    content: '';
+    position: absolute;
+    left: -40px;
+    bottom: -80px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+  .about-hero-inner { position: relative; max-width: 720px; }
+  .about-hero-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px 6px 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .about-hero-mark svg { opacity: 0.95; }
+  .about-hero h1 {
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 14px;
+  }
+  .about-hero h1 em { font-style: normal; background: linear-gradient(90deg, #ffffff 0%, #c7e7d6 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .about-hero-tag {
+    font-size: 16px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.88);
+    margin: 0 0 28px;
+    font-weight: 500;
+  }
+  .about-hero-quote {
+    display: inline-block;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.1);
+    border-left: 3px solid #ffd98a;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.95);
+    font-style: italic;
+  }
+
+  .about-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .slot-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .slot-card.highlight {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f7f3 100%);
+    border-color: #c8dfd2;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+  .slot-card.highlight::before {
+    content: 'MAIN HIGHLIGHT';
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    padding: 3px 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    border-radius: 999px;
+  }
+  .slot-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .slot-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .slot-card.highlight .slot-icon { background: var(--accent); color: #fff; }
+  .slot-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 3px 10px;
+    background: var(--accent-soft);
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+  .slot-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    line-height: 1.35;
+  }
+  .slot-card p {
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--ink-2);
+    margin: 0;
+  }
+
+  .about-naming {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .about-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .about-naming h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+  }
+  .naming-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .naming-card {
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    background: var(--surface-2);
+  }
+  .naming-word {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
+  }
+  .naming-tr { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .naming-def { font-size: 13px; line-height: 1.65; color: var(--ink-2); }
+  .naming-plus {
+    text-align: center;
+    padding: 24px 0 16px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .naming-result {
+    text-align: center;
+    padding: 24px 28px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #f1f7f3 0%, #e5f0ea 100%);
+    border: 1px solid #c8dfd2;
+  }
+  .naming-result-word {
+    font-size: 34px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #2f6a54 0%, #6aab8e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+  .naming-result-tag { font-size: 13px; color: var(--accent-ink); font-weight: 500; }
+
+  .about-voice {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 0;
+    margin-top: 12px;
+  }
+  .voice-col {
+    padding: 16px 4px;
+  }
+  .voice-col h4 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 12px;
+  }
+  .voice-before h4 { color: var(--muted); }
+  .voice-after h4 { color: var(--accent); }
+  .voice-item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .voice-before .voice-item { background: var(--surface-2); color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.2); }
+  .voice-after .voice-item { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+  .voice-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    padding-top: 44px;
+  }
+  .voice-arrow svg { opacity: 0.5; }
+
+  .about-cta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, #1d2a24 0%, #2f6a54 100%);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    margin-bottom: 40px;
+  }
+  .about-cta h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .about-cta p { font-size: 14px; color: rgba(255,255,255,0.85); margin: 0; line-height: 1.55; }
+  .about-cta .btn-primary { background: #fff; color: var(--accent); border-color: #fff; }
+  .about-cta .btn-primary:hover { background: #f1f7f3; }
+
+  /* ====== Responsive ====== */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .run-grid { grid-template-columns: 1fr; }
+    .chat-layout { grid-template-columns: 1fr; height: auto; }
+    .about-slots { grid-template-columns: 1fr; }
+    .naming-grid { grid-template-columns: 1fr; }
+    .voice-grid { grid-template-columns: 1fr; }
+    .voice-arrow { padding: 0; transform: rotate(90deg); }
+    .about-cta { grid-template-columns: 1fr; text-align: left; }
+    .about-hero { padding: 40px 28px; }
+    .about-hero h1 { font-size: 34px; }
+  }
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; }
+    .main { padding: 22px 18px 40px; }
+    .settings-section { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ========== Sidebar ========== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-label="Grommy 로고">
+        <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <!-- Cloud: 아카이빙된 레퍼런스의 집합 -->
+          <path d="M13.5 29c-3.6 0-6.5-2.6-6.5-6 0-3 2.3-5.5 5.3-5.9C13.2 13.4 16.7 10.5 21 10.5c4.4 0 8 3 8.7 7 3.3.5 5.8 3.3 5.8 6.7 0 3.7-3 6.7-6.7 6.8H13.5z"
+                fill="white" opacity="0.96"/>
+          <!-- Inner highlight (그루밍된 결과의 광택) -->
+          <path d="M13 25.8c0-2.2 1.8-4 4-4h5"
+                stroke="#2f6a54" stroke-width="1.4" stroke-linecap="round" opacity="0.35" fill="none"/>
+          <!-- Sparkle: Grammy급 정제된 결과 -->
+          <path d="M30.5 10.2l.95 2.2 2.2.95-2.2.95-.95 2.2-.95-2.2-2.2-.95 2.2-.95z"
+                fill="white"/>
+          <path d="M25 6.5l.55 1.25 1.25.55-1.25.55L25 10.1l-.55-1.25-1.25-.55 1.25-.55z"
+                fill="white" opacity="0.85"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Grommy</div>
+        <div class="brand-sub">AI Prompt Groomer · v2</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">워크스페이스</div>
+      <button class="nav-item" data-view="dashboard">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        </span>
+        대시보드
+      </button>
+      <button class="nav-item" data-view="run">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </span>
+        추출 실행
+      </button>
+      <button class="nav-item" data-view="generate">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </span>
+        프롬프트 생성
+        <span class="count">AI</span>
+      </button>
+      <button class="nav-item" data-view="library">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        프롬프트 라이브러리
+        <span class="count">128</span>
+      </button>
+      <button class="nav-item" data-view="settings">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        설정
+      </button>
+      <button class="nav-item active" data-view="about">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </span>
+        소개
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">데이터</div>
+      <button class="nav-item">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </span>
+        CSV / XLSX 내보내기
+      </button>
+      <button class="nav-item">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </span>
+        Google Sheet 열기
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">S</div>
+      <div>
+        <div class="user-name">Seunghyeop</div>
+        <div class="user-meta">Local · 자동 저장됨</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== Main ========== -->
+  <main class="main">
+
+    <!-- ===== Dashboard view ===== -->
+    <section class="view" data-view="dashboard">
+      <div class="topbar">
+        <div>
+          <div class="page-title">대시보드</div>
+          <div class="page-sub">이번 주 클라우드에 수집된 레퍼런스와 그루밍 현황을 한눈에 확인하세요.</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="topbar-status"><span class="status-dot"></span> Gemini 연결됨</span>
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            새로고침
+          </button>
+          <button class="btn btn-primary" onclick="switchView('run')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            새 추출 시작
+          </button>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">누적 프롬프트</div>
+          <div class="kpi-value">128</div>
+          <div class="kpi-delta up">▲ 12 이번 주</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">추출 성공률 (최근 50건)</div>
+          <div class="kpi-value">96%</div>
+          <div class="kpi-delta up">▲ 2.1%p</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">이번 달 Gemini 비용</div>
+          <div class="kpi-value">₩4,820</div>
+          <div class="kpi-delta down">▼ 평균 40원/건</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2M12 16v2"/></svg>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">분류 태그</div>
+          <div class="kpi-value">24</div>
+          <div class="kpi-delta">카메라 워킹 · 장면 · 오브젝트</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="run-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">최근 추출 흐름</div>
+              <div class="card-sub">지난 7일 · 일별 성공/실패 건수</div>
+            </div>
+            <div class="card-header-action">
+              <button class="btn btn-sm btn-ghost">7일</button>
+              <button class="btn btn-sm btn-ghost">30일</button>
+            </div>
+          </div>
+          <!-- Mini bar chart -->
+          <svg viewBox="0 0 600 180" style="width:100%; height:180px;">
+            <defs>
+              <linearGradient id="barG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#4a8a72"/>
+                <stop offset="100%" stop-color="#2f6a54"/>
+              </linearGradient>
+            </defs>
+            <g font-family="Pretendard" font-size="11" fill="#7a857e">
+              <text x="0" y="30">30</text>
+              <text x="0" y="80">15</text>
+              <text x="0" y="130">0</text>
+            </g>
+            <g transform="translate(30,0)">
+              <line x1="0" y1="30" x2="570" y2="30" stroke="#ece7da" stroke-dasharray="3,4"/>
+              <line x1="0" y1="80" x2="570" y2="80" stroke="#ece7da" stroke-dasharray="3,4"/>
+              <line x1="0" y1="130" x2="570" y2="130" stroke="#ece7da"/>
+              <g>
+                <rect x="10" y="90" width="40" height="40" rx="4" fill="url(#barG)"/>
+                <rect x="90" y="60" width="40" height="70" rx="4" fill="url(#barG)"/>
+                <rect x="170" y="45" width="40" height="85" rx="4" fill="url(#barG)"/>
+                <rect x="250" y="75" width="40" height="55" rx="4" fill="url(#barG)"/>
+                <rect x="330" y="35" width="40" height="95" rx="4" fill="url(#barG)"/>
+                <rect x="410" y="50" width="40" height="80" rx="4" fill="url(#barG)"/>
+                <rect x="490" y="25" width="40" height="105" rx="4" fill="url(#barG)"/>
+              </g>
+              <g font-family="Pretendard" font-size="11" fill="#7a857e" text-anchor="middle">
+                <text x="30" y="150">월</text>
+                <text x="110" y="150">화</text>
+                <text x="190" y="150">수</text>
+                <text x="270" y="150">목</text>
+                <text x="350" y="150">금</text>
+                <text x="430" y="150">토</text>
+                <text x="510" y="150">일</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">카메라 워킹 Top 5</div>
+              <div class="card-sub">가장 자주 등장한 분류</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">시간 정지</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:82%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">32</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">달리 인</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:62%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">24</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">스테디캠</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:48%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">19</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">드론 샷</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:38%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">15</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">클로즈업</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:28%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">11</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">최근 작업 내역</div>
+            <div class="card-sub">가장 최근 5건의 추출 결과</div>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-sm" onclick="switchView('library')">
+              전체 보기 →
+            </button>
+          </div>
+        </div>
+        <ul class="activity-list" style="max-height:none;">
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DXGdtNtEwhu</div>
+              <div class="activity-msg">추출 완료 · 시간 정지 + 달리 인 · 약 38원</div>
+            </div>
+            <div class="activity-time">방금</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DVkP9tR_xYq</div>
+              <div class="activity-msg">추출 완료 · 스테디캠 · 약 41원</div>
+            </div>
+            <div class="activity-time">2분 전</div>
+          </li>
+          <li class="activity-item fail">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">youtube.com/shorts/abc123</div>
+              <div class="activity-msg">비공개 영상 · 다운로드 불가</div>
+            </div>
+            <div class="activity-time">5분 전</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DU7oJLaFmN2</div>
+              <div class="activity-msg">추출 완료 · 드론 샷 + 틸트 다운 · 약 45원</div>
+            </div>
+            <div class="activity-time">12분 전</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DT3kQhRx_Qi</div>
+              <div class="activity-msg">추출 완료 · 클로즈업 · 약 36원</div>
+            </div>
+            <div class="activity-time">1시간 전</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== Run view ===== -->
+    <section class="view" data-view="run">
+      <div class="topbar">
+        <div>
+          <div class="page-title">추출 실행</div>
+          <div class="page-sub">영감을 주는 영상 링크를 붙여 넣으면, Grommy가 원문 프롬프트를 꺼내 클라우드에 차곡차곡 쌓아드려요.</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="topbar-status"><span class="status-dot"></span> 실행 중 · 14 / 22</span>
+        </div>
+      </div>
+
+      <div class="run-grid">
+        <div>
+          <div class="input-wrap">
+            <div class="input-tabs">
+              <button class="input-tab active">링크 붙여넣기</button>
+              <button class="input-tab">파일로 가져오기</button>
+              <button class="input-tab">클립보드에서 가져오기</button>
+            </div>
+            <textarea class="input-area" placeholder="https://www.instagram.com/reel/DXGdtNtEwhu/
+https://www.instagram.com/reel/DVkP9tR_xYq/
+https://youtu.be/..."></textarea>
+            <div class="input-footer">
+              <div class="input-hint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <strong>22</strong>개 링크 감지됨 · 예상 비용 <strong>약 880원</strong>
+              </div>
+              <div class="input-actions">
+                <button class="btn btn-sm">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  비우기
+                </button>
+                <button class="btn btn-primary btn-lg">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  프롬프트 추출 시작
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">추출 옵션</div>
+                <div class="card-sub">이번 실행에만 적용됩니다</div>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+              <div class="field" style="margin:0;">
+                <label class="field-label">추출 모드</label>
+                <select class="field-input">
+                  <option>표준 분석 (권장)</option>
+                  <option>정밀 분석 (비용 ↑)</option>
+                  <option>빠른 요약 (비용 ↓)</option>
+                </select>
+              </div>
+              <div class="field" style="margin:0;">
+                <label class="field-label">Google Sheet 반영</label>
+                <select class="field-input">
+                  <option>기존 행 업데이트 + 신규 추가</option>
+                  <option>신규 행만 추가</option>
+                  <option>시트에 반영하지 않음</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="progress-head">
+            <div class="progress-title">진행 상태</div>
+            <span class="progress-badge">실행 중</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-meta">
+            <span><strong style="color:var(--ink); font-weight:700;">14</strong> / 22 완료</span>
+            <span>예상 남은 시간 · 약 2분</span>
+          </div>
+          <div class="progress-summary">
+            분석 중 · instagram.com/reel/DXGdtNtEwhu/ (카메라 워킹 추정 중…)
+          </div>
+          <ul class="activity-list">
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DXGdtNtEwhu</div>
+                <div class="activity-msg">추출 완료 ·시간 정지 + 달리 인</div>
+              </div>
+              <div class="activity-time">0:03</div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DVkP9tR_xYq</div>
+                <div class="activity-msg">추출 완료 ·스테디캠</div>
+              </div>
+              <div class="activity-time">0:08</div>
+            </li>
+            <li class="activity-item fail">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">youtu.be/abc123</div>
+                <div class="activity-msg">비공개 영상 · 다운로드 불가</div>
+              </div>
+              <div class="activity-time">0:11</div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DU7oJLaFmN2</div>
+                <div class="activity-msg">추출 완료 ·드론 샷</div>
+              </div>
+              <div class="activity-time">0:15</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Generate (AI Chat) view ===== -->
+    <section class="view" data-view="generate">
+      <div class="topbar">
+        <div>
+          <div class="page-title">그루밍 스튜디오</div>
+          <div class="page-sub">시나리오나 기획 의도를 던지면, 클라우드에 쌓인 128개 레퍼런스에서 뽑아낸 규칙을 참고해 당신의 언어로 정교하게 그루밍해드려요.</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="topbar-status"><span class="status-dot"></span> Gemini 2.5 Flash · 그루밍 규칙 24개 로드됨</span>
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            새 대화
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-layout">
+        <!-- Chat main -->
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-avatar">G</div>
+            <div>
+              <div class="chat-title">Grommy — 당신의 AI 프롬프트 그루머</div>
+              <div class="chat-meta">Gemini · 클라우드 아카이브 규칙 참조 활성</div>
+            </div>
+            <div class="chat-header-actions">
+              <button class="icon-btn" title="대화 내보내기">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button class="icon-btn" title="설정">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="chat-body">
+            <!-- AI greeting -->
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">안녕하세요. 만들고 싶은 장면이나 시나리오를 편하게 써주세요. 예를 들어 <strong>"비 오는 도시, 시간이 멈춘 바 앞에서 주인공이 유리병을 낚아채는 장면"</strong> 같은 식이요. 클라우드에 쌓인 비슷한 연출을 참고해서 당신의 언어에 맞게 그루밍해드릴게요.</div>
+            </div>
+
+            <!-- User message -->
+            <div class="chat-msg user">
+              <div class="msg-avatar">S</div>
+              <div class="chat-bubble">비 오는 밤 도시의 뒷골목, 시간이 멈춰 있고 주인공이 떨어지는 빗방울 사이를 천천히 걷는 장면. 카메라는 주인공을 뒤에서 따라가다가 서서히 정면으로 돌아선다.</div>
+            </div>
+
+            <!-- AI reply with generated prompt -->
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">
+                좋습니다. 클라우드에서 <strong>"시간 정지 + 빗방울"</strong> 연출 3건과 <strong>"스테디캠 follow → reverse"</strong> 패턴 2건을 불러와 그루밍했어요. 다듬어진 결과입니다:
+                <div class="ai-response-prompt">
+<button class="copy-btn">복사</button>A hyper-realistic cinematic shot of a rain-soaked back alley at night, time frozen mid-scene — thousands of raindrops suspended motionless in the air, neon signs reflecting on wet asphalt. A lone figure in a dark coat walks slowly through the frozen rain. Camera begins as a steadicam follow-shot from behind, then arcs smoothly around to face the character, revealing their expression. Shot on ARRI Alexa, 35mm lens, shallow depth of field, volumetric light, film grain, 24fps cinematic feel.</div>
+                <div class="ai-refs">
+                  <span class="ai-ref-pill"><span class="ref-num">1</span> 시간 정지 속 빗방울 터치 상세 연출</span>
+                  <span class="ai-ref-pill"><span class="ref-num">2</span> 호텔 앞 시간 정지 및 충격파 연출</span>
+                  <span class="ai-ref-pill"><span class="ref-num">3</span> 스테디캠 — neon-lit alley follow</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- User follow-up -->
+            <div class="chat-msg user">
+              <div class="msg-avatar">S</div>
+              <div class="chat-bubble">카메라 움직임을 드론 샷으로 바꿔줘. 위에서 내려다보다가 서서히 내려오는 느낌.</div>
+            </div>
+
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">
+                카메라 워킹만 <strong>"aerial drone → descending tilt"</strong> 패턴으로 다시 그루밍했습니다. 나머지 장면 요소는 유지했어요.
+                <div class="ai-response-prompt">
+<button class="copy-btn">복사</button>A hyper-realistic cinematic shot of a rain-soaked back alley at night, time frozen mid-scene — thousands of raindrops suspended motionless in the air, neon signs reflecting on wet asphalt. A lone figure in a dark coat stands still at the center of the frozen rain. Camera begins as an aerial drone shot looking straight down from above, then slowly descends while tilting forward, gradually revealing the character at eye level. Shot on ARRI Alexa, 35mm lens, shallow depth of field, volumetric light, film grain, 24fps cinematic feel.</div>
+                <div class="ai-refs">
+                  <span class="ai-ref-pill"><span class="ref-num">4</span> 드론 샷 · 틸트 다운 패턴</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-composer">
+            <div class="chat-templates">
+              <button class="template-chip">🎬 영화적 와이드샷</button>
+              <button class="template-chip">⏱️ 시간 정지 연출</button>
+              <button class="template-chip">🚁 드론 샷</button>
+              <button class="template-chip">🔥 격투/전투 시퀀스</button>
+              <button class="template-chip">🌆 도시 무드</button>
+            </div>
+            <div class="composer-box">
+              <textarea class="composer-input" placeholder="장면, 시나리오, 분위기를 편하게 써주세요. 원하는 카메라 워킹을 구체적으로 지정해도 좋아요."></textarea>
+              <div class="composer-actions">
+                <button class="icon-btn small" title="이미지/레퍼런스 첨부">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button class="icon-btn small" title="클라우드에서 레퍼런스 가져오기">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </button>
+                <span style="font-size:11.5px; color:var(--muted);">⌘ + Enter 로 그루밍</span>
+                <button class="btn btn-primary send">
+                  그루밍
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Context panel -->
+        <aside class="chat-context">
+          <div class="context-head">
+            <div class="context-title">참조된 클라우드 레퍼런스</div>
+            <div class="context-sub">이번 그루밍에 사용된 원본 · 클릭해서 열어보기</div>
+          </div>
+          <div class="context-scroll">
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">1</span>
+                <span class="context-card-rule">시간 정지 속 빗방울 터치</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">시간 정지</span>
+                <span class="tag">빗방울</span>
+              </div>
+              <div class="context-card-body">A hyper-realistic cinematic shot of a city street frozen in time, raindrops suspended mid-air, a lone figure…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">2</span>
+                <span class="context-card-rule">호텔 앞 시간 정지 · 충격파</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">시간 정지</span>
+                <span class="tag">충격파</span>
+              </div>
+              <div class="context-card-body">Time frozen in front of a luxury hotel, a shockwave radiating from the protagonist, debris suspended…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">3</span>
+                <span class="context-card-rule">스테디캠 네온 골목 follow</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">스테디캠</span>
+              </div>
+              <div class="context-card-body">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">4</span>
+                <span class="context-card-rule">드론 · 틸트 다운 도시 샷</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">드론 샷</span>
+                <span class="tag">틸트 다운</span>
+              </div>
+              <div class="context-card-body">Aerial drone shot descending over a futuristic Seoul skyline at dusk, the camera tilts down from the sky…</div>
+            </div>
+            <div style="text-align:center; margin-top:6px;">
+              <button class="btn btn-sm btn-ghost">클라우드 아카이브에서 전체 보기 →</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== Library view ===== -->
+    <section class="view" data-view="library">
+      <div class="topbar">
+        <div>
+          <div class="page-title">클라우드 아카이브</div>
+          <div class="page-sub">그루밍된 프롬프트 128건이 클라우드에 정돈되어 있어요. 검색과 분류로 언제든 꺼내 쓰세요.</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            내보내기
+          </button>
+          <button class="btn btn-primary" onclick="switchView('run')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            새 그루밍
+          </button>
+        </div>
+      </div>
+
+      <div class="results-toolbar">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="search" placeholder="예: 시간 정지, 술집, dolly, 괴물 전투">
+        </div>
+        <button class="btn btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          고급 필터
+        </button>
+        <button class="btn btn-sm btn-ghost">필터 초기화</button>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">카메라 워킹</span>
+        <button class="chip active">시간 정지 <span class="count">32</span></button>
+        <button class="chip">달리 인 <span class="count">24</span></button>
+        <button class="chip">스테디캠 <span class="count">19</span></button>
+        <button class="chip">드론 샷 <span class="count">15</span></button>
+        <button class="chip">클로즈업 <span class="count">11</span></button>
+        <button class="chip">와이드 <span class="count">9</span></button>
+        <button class="chip">틸트 다운 <span class="count">7</span></button>
+        <button class="chip">줌 인 <span class="count">5</span></button>
+      </div>
+
+      <div class="results-table-wrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th class="col-thumb"></th>
+              <th class="col-camera">카메라 워킹</th>
+              <th class="col-prompt">프롬프트 (영문)</th>
+              <th class="col-content">내용</th>
+              <th class="col-meta">메타</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">시간 정지</span>
+                  <span class="tag">달리 인</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">A hyper-realistic cinematic shot of a bar frozen in time, raindrops suspended mid-air, a lone figure walking slowly toward the camera with a dolly-in motion…</div>
+              </td>
+              <td><div class="content-text">비 오는 도시의 술집, 시간이 멈춘 듯한 장면 · 주인공이 카메라 방향으로 천천히 다가옴</div></td>
+              <td>
+                <div class="meta-col">방금 · 약 38원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn" title="더 보기">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">스테디캠</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character, soft rain falling, reflections on wet asphalt…</div>
+              </td>
+              <td><div class="content-text">네온 간판이 켜진 뒷골목을 따라가는 스테디캠 샷</div></td>
+              <td>
+                <div class="meta-col">2분 전 · 약 41원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">드론 샷</span>
+                  <span class="tag">틸트 다운</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Aerial drone shot descending over a futuristic Seoul skyline at dusk, the camera tilts down from the sky toward a single rooftop where a figure stands…</div>
+              </td>
+              <td><div class="content-text">황혼의 미래도시 서울을 내려다보는 드론 샷, 옥상에 선 인물로 틸트 다운</div></td>
+              <td>
+                <div class="meta-col">12분 전 · 약 45원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">클로즈업</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Extreme close-up of an eye slowly opening, reflection of a burning city visible in the iris, shallow depth of field, 85mm lens feel…</div>
+              </td>
+              <td><div class="content-text">눈동자에 불타는 도시가 비치는 극단적 클로즈업</div></td>
+              <td>
+                <div class="meta-col">1시간 전 · 약 36원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">YT</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag tag-muted">미분류</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Wide establishing shot of a post-apocalyptic desert, sandstorm approaching from the horizon, a lone vehicle kicking up dust…</div>
+              </td>
+              <td><div class="content-text">포스트 아포칼립스 사막, 지평선에서 다가오는 모래폭풍</div></td>
+              <td>
+                <div class="meta-col">어제 · 약 52원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Settings view ===== -->
+    <section class="view" data-view="settings">
+      <div class="topbar">
+        <div>
+          <div class="page-title">설정</div>
+          <div class="page-sub">클라우드 연동(Google Sheets)과 그루밍 엔진(Gemini API)을 관리합니다.</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <nav class="settings-nav">
+          <button class="settings-nav-item active">클라우드 연동 (Sheets)</button>
+          <button class="settings-nav-item">그루밍 엔진 (Gemini)</button>
+          <button class="settings-nav-item">그루밍 기본값</button>
+          <button class="settings-nav-item">저장 위치</button>
+          <button class="settings-nav-item">앱 정보</button>
+        </nav>
+
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">클라우드 연동 · Google Sheets</div>
+                <div class="card-sub">그루밍된 프롬프트가 자동으로 지정된 워크시트에 쌓입니다.</div>
+              </div>
+              <div class="card-header-action">
+                <span class="status-pill ok">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  연결됨
+                </span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Google Sheet ID</label>
+              <input class="field-input" value="1DtWPwJCLsz3BkKaspfCqNpT5844hd7r736vfwPGY1bA">
+              <div class="field-hint">시트 URL 중 <code>/d/…/edit</code> 사이 문자열을 붙여넣으세요.</div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">워크시트 이름</label>
+              <input class="field-input" value="프롬프트">
+            </div>
+
+            <div class="field">
+              <label class="field-label">credentials.json</label>
+              <div class="field-row">
+                <input class="field-input" value="~/Library/Application Support/PromptExtractor/credentials.json" readonly style="flex:1;">
+                <button class="btn btn-sm">파일 교체</button>
+              </div>
+              <div class="field-hint">서비스 계정 JSON 키 파일입니다. 앱 외부로 공유하지 마세요.</div>
+            </div>
+
+            <div class="field" style="margin-bottom:0;">
+              <div class="field-row" style="justify-content:flex-end;">
+                <button class="btn">Google Sheet 열기</button>
+                <button class="btn btn-primary">변경 사항 저장</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">그루밍 엔진 · Gemini API</div>
+                <div class="card-sub">Grommy의 그루밍을 실제로 수행하는 AI 모델 키입니다.</div>
+              </div>
+              <div class="card-header-action">
+                <span class="status-pill ok">설정됨</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Gemini API Key</label>
+              <input class="field-input" type="password" value="••••••••••••••••••••••••">
+              <div class="field-hint">새 키로 바꿀 때만 다시 입력하세요. 앱은 키 값을 시스템 키체인에 저장합니다.</div>
+            </div>
+
+            <div class="field" style="margin-bottom:0;">
+              <div class="field-row" style="justify-content:flex-end;">
+                <button class="btn btn-danger-ghost">키 제거</button>
+                <button class="btn btn-primary">키 저장</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== About view ===== -->
+    <section class="view active" data-view="about">
+      <!-- Hero -->
+      <div class="about-hero">
+        <div class="about-hero-inner">
+          <div class="about-hero-mark">
+            <svg width="14" height="14" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <path d="M13.5 29c-3.6 0-6.5-2.6-6.5-6 0-3 2.3-5.5 5.3-5.9C13.2 13.4 16.7 10.5 21 10.5c4.4 0 8 3 8.7 7 3.3.5 5.8 3.3 5.8 6.7 0 3.7-3 6.7-6.7 6.8H13.5z" fill="#ffffff"/>
+              <path d="M30.5 10.2l.95 2.2 2.2.95-2.2.95-.95 2.2-.95-2.2-2.2-.95 2.2-.95z" fill="#ffffff"/>
+            </svg>
+            Grommy · About
+          </div>
+          <h1>☁️ Grommy<br>Your <em>AI Prompt Groomer</em></h1>
+          <p class="about-hero-tag">
+            복잡한 레퍼런스를 클라우드에 모으고, 당신의 언어로 완벽하게 그루밍하세요.<br>
+            흩어진 영감을 하나의 클라우드로 응집해, Grammy급 결과물로 다듬는 창작자의 작업대.
+          </p>
+          <div class="about-hero-quote">
+            "투박한 원본 데이터를 작품으로 깎아내는 <strong>그루밍(Grooming)</strong>의 미학."
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Slots -->
+      <div class="about-section-label">THE GROMMY WAY</div>
+      <div class="about-slots">
+        <!-- Slot 01 -->
+        <div class="slot-card">
+          <div class="slot-number">SLOT 01 <span class="slot-action">Collect</span></div>
+          <div class="slot-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <h3>세상의 모든 영감을<br>Cloud로 수집하세요.</h3>
+          <p>유튜브, 틱톡, 인스타그램… 영감을 주는 영상의 링크만 붙여넣으세요. 영문 원문 프롬프트를 즉시 추출하고, 당신의 구글 스프레드시트에 실시간으로 차곡차곡 쌓아드립니다. 흩어져 있던 아이디어가 하나의 클라우드로 응집됩니다.</p>
+        </div>
+
+        <!-- Slot 02 — Highlight -->
+        <div class="slot-card highlight">
+          <div class="slot-number">SLOT 02 <span class="slot-action" style="background:var(--accent); color:#fff;">Refine</span></div>
+          <div class="slot-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          </div>
+          <h3>당신의 시나리오를 위해<br>더 정교하게 Grooming하세요.</h3>
+          <p>추출된 원문은 시작일 뿐입니다. 제미나이(Gemini)가 당신의 기획 의도와 시나리오를 분석해 가장 세련된 AI 영상 프롬프트로 다듬어 드립니다. 투박한 원본 데이터를 작품으로 깎아내는 '그루밍'의 미학을 경험하세요.</p>
+        </div>
+
+        <!-- Slot 03 -->
+        <div class="slot-card">
+          <div class="slot-number">SLOT 03 <span class="slot-action">Achieve</span></div>
+          <div class="slot-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <h3>가장 완벽한 프롬프트로<br>Grammy급 결과물을 만드세요.</h3>
+          <p>잘 다듬어진(Groomed) 프롬프트는 최고의 영상으로 태어납니다. 정돈된 아카이브에서 언제든 영감을 꺼내 쓰고, 생성형 AI 영상의 새로운 기준을 제시하세요. 당신의 크리에이티브는 Grommy에서 완성됩니다.</p>
+        </div>
+      </div>
+
+      <!-- Naming definition -->
+      <div class="about-naming">
+        <div class="about-section-label">NAMING · 이름에 담긴 의미</div>
+        <h2>왜 Grommy인가?</h2>
+
+        <div class="naming-grid">
+          <div class="naming-card">
+            <div class="naming-word">Groom</div>
+            <div class="naming-tr">동사 · 그루밍하다</div>
+            <div class="naming-def">거친 원재료를 세심하게 다듬어 완성도 높은 결과물로 만드는 작업. Grommy의 핵심 동사이자 UX 전반을 꿰뚫는 은유.</div>
+          </div>
+          <div class="naming-card">
+            <div class="naming-word">Gemini</div>
+            <div class="naming-tr">구글의 멀티모달 AI</div>
+            <div class="naming-def">영상을 직접 이해하고 언어로 번역해내는 엔진. Grommy의 지능을 담당하며, 한 땀 한 땀 프롬프트를 다듬는 손.</div>
+          </div>
+          <div class="naming-card">
+            <div class="naming-word">Grammy</div>
+            <div class="naming-tr">최고의 결과</div>
+            <div class="naming-def">"잘 다듬어진 것은 결국 상을 받는다." 크리에이터가 도달하고 싶은 완성도의 상징이자 Grommy의 최종 목적지.</div>
+          </div>
+        </div>
+
+        <div class="naming-plus">＋</div>
+        <div class="naming-result">
+          <div class="naming-result-word">Grommy</div>
+          <div class="naming-result-tag">= Groom × Gemini × Grammy<br>영감을 다듬어 결과로 이끄는 AI 프롬프트 그루머</div>
+        </div>
+      </div>
+
+      <!-- Voice & Tone -->
+      <div class="about-voice">
+        <div class="about-section-label">VOICE & TONE · 브랜드 일관성</div>
+        <h2 style="font-size:24px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;">그루밍은 단어이기 전에 태도입니다.</h2>
+        <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin:0 0 20px;">서비스 안의 모든 버튼과 안내 문구에 '그루밍'의 감각을 녹여내, 투박함 대신 정제된 전문가의 언어로 소통합니다.</p>
+
+        <div class="voice-grid">
+          <div class="voice-col voice-before">
+            <h4>Before · 일반적 표현</h4>
+            <div class="voice-item">프롬프트 추출하기</div>
+            <div class="voice-item">프롬프트 생성 중…</div>
+            <div class="voice-item">저장되었습니다.</div>
+            <div class="voice-item">결과 목록</div>
+            <div class="voice-item">새 추출 시작</div>
+          </div>
+          <div class="voice-arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <div class="voice-col voice-after">
+            <h4>After · Grommy 톤</h4>
+            <div class="voice-item">원문 그루밍 시작</div>
+            <div class="voice-item">당신의 시나리오에 맞게 그루밍 중…</div>
+            <div class="voice-item">그루밍된 프롬프트가 클라우드에 보관되었습니다.</div>
+            <div class="voice-item">클라우드 아카이브</div>
+            <div class="voice-item">새 그루밍</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="about-cta">
+        <div>
+          <h3>이제 당신의 첫 그루밍을 시작하세요.</h3>
+          <p>영상 링크 하나만 있으면 됩니다. Grommy가 나머지를 다듬어드릴게요.</p>
+        </div>
+        <div>
+          <button class="btn btn-primary btn-lg" onclick="switchView('run')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            원문 그루밍 시작하기
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Library detail drawer ===== -->
+  <div class="drawer-overlay" onclick="closeDrawer()"></div>
+  <aside class="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="drawer-thumb">IG</div>
+      <div>
+        <div class="drawer-title">시간 정지 + 달리 인</div>
+        <div class="drawer-sub">instagram.com/reel/DXGdtNtEwhu · 방금 · 약 38원</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()" aria-label="닫기">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <div>
+        <div class="drawer-section-label">원본 미리보기</div>
+        <div class="drawer-preview">영상 재생</div>
+      </div>
+
+      <div>
+        <div class="drawer-section-label">카메라 워킹</div>
+        <div class="tag-row">
+          <span class="tag">시간 정지</span>
+          <span class="tag">달리 인</span>
+          <span class="tag">스테디캠</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer-section-label">내용 요약</div>
+        <div style="font-size:13.5px; line-height:1.7; color:var(--ink-2);">
+          비 오는 도시의 술집 앞, 시간이 멈춘 듯한 장면. 주인공이 빗방울 사이를 뚫고 카메라 방향으로 천천히 다가옴. 네온 반사와 얕은 심도로 느와르 감성을 강조.
+        </div>
+      </div>
+
+      <div>
+        <div class="drawer-section-label">프롬프트 (영문)</div>
+        <div class="drawer-prompt">
+<button class="copy-btn">복사</button>A hyper-realistic cinematic shot of a bar frozen in time, raindrops suspended mid-air, reflections on wet asphalt with neon-lit signage. A lone figure in a long dark coat walks slowly toward the camera with a dolly-in motion, pushing through the frozen droplets. Shot on ARRI Alexa, 35mm lens, shallow depth of field, volumetric rim lighting, film grain, cinematic 24fps.</div>
+      </div>
+
+      <div>
+        <div class="drawer-section-label">메타데이터</div>
+        <dl class="drawer-kv">
+          <dt>추출 시각</dt><dd>2026-04-21 오후 11:50</dd>
+          <dt>소요 시간</dt><dd>7.2초</dd>
+          <dt>Gemini 모델</dt><dd>gemini-2.5-flash</dd>
+          <dt>비용</dt><dd>약 38원 (USD $0.027)</dd>
+          <dt>분류 규칙</dt><dd>시간 정지 속 빗방울 터치 상세 연출</dd>
+          <dt>시트 상태</dt><dd style="color:var(--success);">✓ 동기화됨</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn" data-action="open">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        원본 열기
+      </button>
+      <button class="btn" data-action="copy">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        프롬프트 복사
+      </button>
+      <button class="btn" data-action="pin">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5"/><path d="M5 10l7-7 7 7"/><path d="M19 10v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4"/></svg>
+        참조 고정
+      </button>
+      <button class="btn btn-primary" data-action="regroom" onclick="closeDrawer(); switchView('generate');">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        이 스타일로 새로 생성
+      </button>
+    </div>
+  </aside>
+</div>
+
+<script>
+  // Simple view switcher
+  const views = Array.from(document.querySelectorAll('.view'));
+  const navItems = Array.from(document.querySelectorAll('.nav-item[data-view]'));
+
+  function switchView(name) {
+    views.forEach(v => v.classList.toggle('active', v.dataset.view === name));
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.view === name));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => switchView(item.dataset.view));
+  });
+
+  // Chip toggle (library filter demo)
+  document.querySelectorAll('.filter-bar .chip').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('active'));
+  });
+
+  // Input tabs demo
+  document.querySelectorAll('.input-tabs .input-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.input-tabs .input-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // Settings nav demo
+  document.querySelectorAll('.settings-nav-item').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.settings-nav-item').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // Drawer (library detail)
+  const drawerEl = document.querySelector('.drawer');
+  const overlayEl = document.querySelector('.drawer-overlay');
+
+  function openDrawer(row) {
+    if (row) {
+      const thumbText = row.querySelector('.thumb')?.textContent || 'IG';
+      const tags = Array.from(row.querySelectorAll('.tag')).map(t => t.textContent.trim());
+      const promptText = row.querySelector('.prompt-text')?.textContent || '';
+      const contentText = row.querySelector('.content-text')?.textContent || '';
+      const metaText = row.querySelector('.meta-col')?.textContent || '';
+
+      const drawerThumb = drawerEl.querySelector('.drawer-thumb');
+      const drawerTitle = drawerEl.querySelector('.drawer-title');
+      const drawerSub = drawerEl.querySelector('.drawer-sub');
+      const drawerTagRow = drawerEl.querySelector('.tag-row');
+      const drawerPrompt = drawerEl.querySelector('.drawer-prompt');
+      const drawerContent = drawerEl.querySelectorAll('.drawer-body > div')[2]?.querySelector('div:last-child');
+
+      if (drawerThumb) drawerThumb.textContent = thumbText;
+      if (drawerTitle) drawerTitle.textContent = tags.filter(t => t !== '미분류').join(' + ') || '미분류 프롬프트';
+      if (drawerSub) drawerSub.textContent = metaText;
+      if (drawerTagRow) {
+        drawerTagRow.innerHTML = tags.length
+          ? tags.map(t => `<span class="tag${t === '미분류' ? ' tag-muted' : ''}">${t}</span>`).join('')
+          : '<span class="tag tag-muted">미분류</span>';
+      }
+      if (drawerContent && contentText) drawerContent.textContent = contentText;
+      if (drawerPrompt && promptText) {
+        drawerPrompt.innerHTML = '<button class="copy-btn">복사</button>' + promptText;
+      }
+    }
+    drawerEl.classList.add('open');
+    overlayEl.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    drawerEl.classList.remove('open');
+    overlayEl.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  // Copy buttons (chat + drawer)
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('copy-btn')) {
+      e.stopPropagation();
+      const text = e.target.parentElement.textContent.replace('복사', '').trim();
+      navigator.clipboard?.writeText(text);
+      const orig = e.target.textContent;
+      e.target.textContent = '✓ 복사됨';
+      setTimeout(() => { e.target.textContent = orig; }, 1200);
+    }
+  });
+</script>
+
+</body>
+</html>

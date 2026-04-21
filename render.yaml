@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: prompt-extractor
+    env: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /ping
+    envVars:
+      - key: PORT
+        value: 5001

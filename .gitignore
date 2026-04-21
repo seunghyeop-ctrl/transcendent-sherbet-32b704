@@ -1,0 +1,37 @@
+# macOS / Windows noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments / local tooling
+.venv/
+venv/
+env/
+.env
+
+# Node / front-end local artifacts
+node_modules/
+dist/
+build/
+
+# Local runtime outputs
+workspace/
+frames/
+outputs/
+results.csv
+results.xlsx
+results_meta.json
+*.log
+
+# Local secrets / config copies if someone drops them into the repo
+credentials.json
+config.json
+secrets.json
+
