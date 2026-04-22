@@ -4,6 +4,7 @@ import argparse
 import csv
 import html
 import json
+import os
 import re
 import threading
 import urllib.parse
@@ -19,6 +20,12 @@ import extract
 
 TEMPLATE_PATH = Path(__file__).with_name("ui-mockup.html")
 VALID_VIEWS = {"dashboard", "run", "generate", "library", "settings", "about"}
+PUBLIC_URL_ENV_KEYS = (
+    "PROMPT_EXTRACTOR_PUBLIC_URL",
+    "PUBLIC_URL",
+    "RENDER_EXTERNAL_URL",
+    "URL",
+)
 SEARCH_SYNONYM_GROUPS = [
     ["시간 정지", "시간정지", "시간스탑", "time-freeze", "time freeze", "time stop", "time-stop"],
     ["술집", "바", "레스토랑", "식당", "restaurant", "bar", "pub"],
@@ -391,6 +398,78 @@ def build_settings(form: dict[str, str]) -> tuple[dict, str]:
     return config, key_message
 
 
+def get_public_base_url(handler: BaseHTTPRequestHandler | None = None) -> str:
+    for env_name in PUBLIC_URL_ENV_KEYS:
+        value = os.getenv(env_name, "").strip()
+        if value:
+            return value.rstrip("/")
+
+    render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if render_hostname:
+        return f"https://{render_hostname}".rstrip("/")
+
+    if handler:
+        forwarded_proto = handler.headers.get("X-Forwarded-Proto", "").split(",")[0].strip()
+        forwarded_host = handler.headers.get("X-Forwarded-Host", "").split(",")[0].strip()
+        host = forwarded_host or handler.headers.get("Host", "").strip()
+        if host:
+            proto = forwarded_proto or ("https" if host.endswith(".onrender.com") else "http")
+            return f"{proto}://{host}".rstrip("/")
+    return ""
+
+
+def get_git_revision() -> str:
+    env_revision = os.getenv("RENDER_GIT_COMMIT", "").strip() or os.getenv("GIT_COMMIT", "").strip()
+    if env_revision:
+        return env_revision[:7]
+    git_dir = Path(__file__).with_name(".git")
+    if git_dir.exists():
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=Path(__file__).parent,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            revision = result.stdout.strip()
+            if revision:
+                return revision
+        except Exception:
+            pass
+    return ""
+
+
+def build_deployment_status(config: dict, handler: BaseHTTPRequestHandler | None = None) -> dict[str, object]:
+    output_root, frames_dir, outputs_dir = extract.ensure_runtime_dirs(config)
+    public_url = get_public_base_url(handler)
+    credentials_path = extract.credentials_path_for(config)
+    sheet_id = str(config.get("google_sheet_id", "")).strip()
+    worksheet = str(config.get("worksheet", extract.DEFAULT_WORKSHEET)).strip() or extract.DEFAULT_WORKSHEET
+    gemini_ready = extract.has_gemini_api_key()
+    credentials_ready = credentials_path.exists()
+    is_render = bool(os.getenv("RENDER", "").strip() or os.getenv("RENDER_SERVICE_ID", "").strip())
+    return {
+        "public_url": public_url,
+        "ping_url": f"{public_url}/ping" if public_url else "",
+        "git_revision": get_git_revision(),
+        "runtime": "render" if is_render else "local",
+        "gemini_ready": gemini_ready,
+        "google_sheet_id": sheet_id,
+        "worksheet": worksheet,
+        "credentials_ready": credentials_ready,
+        "sheets_ready": bool(sheet_id and credentials_ready),
+        "app_support_dir": str(extract.APP_SUPPORT_DIR),
+        "output_root": str(output_root),
+        "frames_dir": str(frames_dir),
+        "outputs_dir": str(outputs_dir),
+        "credentials_path": str(credentials_path),
+        "models": list(extract.MODEL_CANDIDATES),
+    }
+
+
 def normalize_result_row(row: dict[str, str]) -> dict[str, str]:
     normalized = {
         "카메라 워킹": (row.get("카메라 워킹") or "").strip(),
@@ -572,6 +651,12 @@ def compute_runtime_metrics(config: dict, snapshot: dict | None = None) -> dict:
 class PromptExtractorHandler(BaseHTTPRequestHandler):
     server_version = "PromptExtractorWeb/3.0"
 
+    def safe_write(self, payload: bytes) -> None:
+        try:
+            self.wfile.write(payload)
+        except BrokenPipeError:
+            return
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/":
@@ -584,6 +669,9 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/library":
             self.serve_library_state()
+            return
+        if parsed.path == "/api/deployment":
+            self.serve_deployment_state()
             return
         if parsed.path == "/download/csv":
             self.serve_file(extract.csv_path_for(extract.load_config()), "text/csv; charset=utf-8")
@@ -598,7 +686,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.end_headers()
-            self.wfile.write(b"ok")
+            self.safe_write(b"ok")
             return
         self.send_error(HTTPStatus.NOT_FOUND)
 
@@ -760,6 +848,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         camera_counter = runtime["camera_counter"]
         current_session_cost = runtime["current_session_cost"]
         success_rate = runtime["success_rate"]
+        deployment_status = build_deployment_status(config, self)
 
         template = self._load_template()
         template = re.sub(
@@ -796,7 +885,11 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         template = self._replace_view_section(template, "run", self._render_run_view(snapshot))
         template = self._replace_view_section(template, "generate", self._render_generate_view(recent_results, camera_counter))
         template = self._replace_view_section(template, "library", self._render_library_view(recent_results, camera_counter, sheet_url))
-        template = self._replace_view_section(template, "settings", self._render_settings_view(config, gemini_ready, credentials_ready, sheet_url))
+        template = self._replace_view_section(
+            template,
+            "settings",
+            self._render_settings_view(config, gemini_ready, credentials_ready, sheet_url, deployment_status),
+        )
 
         template = template.replace('<span class="count">128</span>', f'<span class="count">{len(results)}</span>', 1)
         template = template.replace('Gemini 2.5 Flash · 그루밍 규칙 24개 로드됨', f'Gemini 직접 분석 · 카메라 규칙 {len(camera_counter) or 0}개 로드됨', 1)
@@ -809,7 +902,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write(template.encode("utf-8"))
+        self.safe_write(template.encode("utf-8"))
 
     def serve_runtime_state(self) -> None:
         config = extract.load_config()
@@ -835,7 +928,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.end_headers()
-        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        self.safe_write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
 
     def serve_library_state(self) -> None:
         config = extract.load_config()
@@ -849,7 +942,15 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.end_headers()
-        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        self.safe_write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+
+    def serve_deployment_state(self) -> None:
+        config = extract.load_config()
+        payload = build_deployment_status(config, self)
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.end_headers()
+        self.safe_write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
 
     def _load_template(self) -> str:
         return TEMPLATE_PATH.read_text(encoding="utf-8")
@@ -1499,7 +1600,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
   </div>
 </section>'''
 
-    def _render_settings_view(self, config: dict, gemini_ready: bool, credentials_ready: bool, sheet_url: str) -> str:
+    def _render_settings_view(self, config: dict, gemini_ready: bool, credentials_ready: bool, sheet_url: str, deployment_status: dict[str, object]) -> str:
         sheet_id = str(config.get("google_sheet_id", "")).strip()
         worksheet = str(config.get("worksheet", extract.DEFAULT_WORKSHEET)).strip() or extract.DEFAULT_WORKSHEET
         credentials_path = str(extract.credentials_path_for(config))
@@ -1508,6 +1609,48 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         sheet_status_class = "ok" if (sheet_id and credentials_ready) else "warn"
         key_status_class = "ok" if gemini_ready else "warn"
         sheet_button = f'<button class="btn" type="button" onclick="window.open(\'{self._escape_attr(sheet_url)}\', \'_blank\')">Google Sheet 열기</button>' if sheet_url else ''
+        public_url = str(deployment_status.get("public_url", "") or "")
+        ping_url = str(deployment_status.get("ping_url", "") or "")
+        runtime_name = "Render" if deployment_status.get("runtime") == "render" else "로컬/기타"
+        git_revision = str(deployment_status.get("git_revision", "") or "")
+        outputs_dir = str(deployment_status.get("outputs_dir", "") or "")
+        models = " / ".join(deployment_status.get("models", []) or [])
+        deploy_status_html = f'''
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">배포 준비 상태</div>
+            <div class="card-sub">고정 URL 배포 전에 필요한 값이 모두 준비됐는지 확인합니다.</div>
+          </div>
+          <div class="card-header-action"><span class="status-pill {'ok' if public_url else 'warn'}">{'고정 URL 감지' if public_url else '고정 URL 미설정'}</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;">
+          <div class="mini-card">
+            <div class="card-title">런타임</div>
+            <div class="card-sub" style="margin-top:6px;">{self._escape(runtime_name)}{f' · {self._escape(git_revision)}' if git_revision else ''}</div>
+          </div>
+          <div class="mini-card">
+            <div class="card-title">모델</div>
+            <div class="card-sub" style="margin-top:6px;">{self._escape(models or 'gemini-2.5-flash')}</div>
+          </div>
+          <div class="mini-card">
+            <div class="card-title">공개 주소</div>
+            <div class="card-sub" style="margin-top:6px; word-break:break-all;">{self._escape(public_url or '아직 환경변수/프록시에서 감지되지 않았습니다.')}</div>
+          </div>
+          <div class="mini-card">
+            <div class="card-title">헬스체크</div>
+            <div class="card-sub" style="margin-top:6px; word-break:break-all;">{self._escape(ping_url or '/ping')}</div>
+          </div>
+          <div class="mini-card">
+            <div class="card-title">출력 폴더</div>
+            <div class="card-sub" style="margin-top:6px; word-break:break-all;">{self._escape(outputs_dir)}</div>
+          </div>
+          <div class="mini-card">
+            <div class="card-title">배포 API</div>
+            <div class="card-sub" style="margin-top:6px;">/api/deployment 에서 현재 상태를 JSON으로 확인할 수 있습니다.</div>
+          </div>
+        </div>
+      </div>'''
 
         return f'''
 <section class="view" data-view="settings">
@@ -1526,6 +1669,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     </nav>
 
     <div>
+      {deploy_status_html}
       <form class="card" method="post" action="/settings">
         <div class="card-header">
           <div>
@@ -2090,7 +2234,7 @@ document.addEventListener('click', (e) => {
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Disposition", f'attachment; filename="{path.name}"')
         self.end_headers()
-        self.wfile.write(path.read_bytes())
+        self.safe_write(path.read_bytes())
 
     def redirect(self, location: str) -> None:
         self.send_response(HTTPStatus.SEE_OTHER)
@@ -2112,7 +2256,17 @@ document.addEventListener('click', (e) => {
 def run_server(host: str, port: int, open_browser: bool = False) -> None:
     server = ThreadingHTTPServer((host, port), PromptExtractorHandler)
     url = f"http://{host}:{port}" if host != "0.0.0.0" else f"http://127.0.0.1:{port}"
+    public_url = get_public_base_url()
+    deployment = build_deployment_status(extract.load_config())
     print(f"PromptExtractor 웹 서버 실행 중: {url}")
+    if public_url:
+        print(f"공개 주소 감지: {public_url}")
+    print(
+        "배포 준비 상태:"
+        f" Gemini={'OK' if deployment['gemini_ready'] else 'MISSING'}"
+        f" Sheets={'OK' if deployment['sheets_ready'] else 'MISSING'}"
+        f" Outputs={deployment['outputs_dir']}"
+    )
     if open_browser:
         webbrowser.open(url)
     try:

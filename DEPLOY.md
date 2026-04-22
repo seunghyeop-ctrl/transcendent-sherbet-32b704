@@ -1,4 +1,4 @@
-# 프롬프트 추출기 배포 가이드
+# Grommy G 배포 가이드
 
 이 프로젝트는 이제 웹앱으로 배포할 수 있습니다.
 
@@ -16,6 +16,7 @@
 아래 값들을 서버에 설정하면 됩니다.
 
 - `PORT`
+- `PROMPT_EXTRACTOR_PUBLIC_URL` (선택, 고정 URL 명시용)
 - `GEMINI_API_KEY`
 - `PROMPT_EXTRACTOR_GOOGLE_SHEET_ID`
 - `PROMPT_EXTRACTOR_WORKSHEET`
@@ -27,6 +28,7 @@
 Render에서는 아래 기본값을 권장합니다.
 - `PROMPT_EXTRACTOR_APP_DIR=/tmp/prompt-extractor-app`
 - `PROMPT_EXTRACTOR_OUTPUT_DIR=/tmp/prompt-extractor-data`
+- `PROMPT_EXTRACTOR_PUBLIC_URL=https://your-service.onrender.com`
 
 이 프로젝트는 Google Sheets를 메인 저장소로 사용하는 구조라, Render 컨테이너의 임시 파일 시스템을 써도 운영이 가능합니다.
 
@@ -70,6 +72,14 @@ python3 app.py --host 0.0.0.0 --port 5001
 - 내부 테스트: `http://서버IP:5001`
 - 외부 접속: 회사 도메인, reverse proxy, HTTPS 연결 권장
 - 모바일에서 쓰려면 HTTPS가 가장 안정적입니다.
+
+## 배포 상태 확인
+배포 후 아래 주소들로 상태를 바로 확인할 수 있습니다.
+
+- `/ping` : 헬스체크
+- `/api/state` : 현재 작업 상태/세션 요약
+- `/api/library` : 최근 아카이브 요약
+- `/api/deployment` : 배포 준비 상태, 공개 URL, 출력 경로, Sheets/Gemini 준비 여부
 
 ## 결과 저장
 - 결과 CSV/XLSX: `PROMPT_EXTRACTOR_OUTPUT_DIR/outputs`

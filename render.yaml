@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: prompt-extractor
+    name: grommy-g
     env: docker
     plan: starter
     autoDeploy: true

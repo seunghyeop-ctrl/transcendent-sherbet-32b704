@@ -1,4 +1,4 @@
-# Render 빠른 배포 가이드
+# Grommy G Render 빠른 배포 가이드
 
 이 문서는 현재 프로젝트를 **Render 웹 서비스**로 배포하는 가장 짧은 절차만 정리한 문서입니다.
 
@@ -40,12 +40,14 @@ Render 대시보드의 `Environment`에 아래 값을 넣습니다.
 - `PROMPT_EXTRACTOR_GOOGLE_SHEET_ID`
 - `PROMPT_EXTRACTOR_WORKSHEET`
 - `GOOGLE_CREDENTIALS_JSON`
+- `PROMPT_EXTRACTOR_PUBLIC_URL`
 
 ### 이미 기본값이 들어가도 되는 것
 
 - `PORT=5001`
 - `PROMPT_EXTRACTOR_APP_DIR=/tmp/prompt-extractor-app`
 - `PROMPT_EXTRACTOR_OUTPUT_DIR=/tmp/prompt-extractor-data`
+- `PROMPT_EXTRACTOR_PUBLIC_URL=https://your-render-service.onrender.com`
 
 ## 4. 값 형식 예시
 
@@ -85,6 +87,7 @@ Render가 배포를 끝내면 고정 URL이 생깁니다.
 
 확인할 주소:
 - `/ping`
+- `/api/deployment`
 - `/?view=run`
 - `/?view=library`
 - `/?view=settings`
