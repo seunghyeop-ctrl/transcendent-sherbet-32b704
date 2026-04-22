@@ -1,0 +1,21 @@
+# Cross-platform line ending normalization (Mac + Windows 혼용 대응)
+* text=auto eol=lf
+
+# Force binary handling for images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Force text + LF for source
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf

@@ -1350,344 +1350,6 @@
     .main { padding: 22px 18px 40px; }
     .settings-section { grid-template-columns: 1fr; }
   }
-
-  /* ====== Studio (structured result) ====== */
-  .studio-layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 18px;
-    align-items: start;
-  }
-  .studio-side {
-    position: sticky;
-    top: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .pin-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2px 4px;
-  }
-  .pin-title { font-size: 12.5px; font-weight: 700; letter-spacing: -0.01em; }
-  .pin-sub { font-size: 11.5px; color: var(--muted); }
-  .pinned-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-  }
-  .pinned-card .pin-num {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    background: var(--accent-soft);
-    color: var(--accent-ink);
-    font-size: 11px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .pinned-card .pin-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; padding-right: 24px; }
-  .pinned-card .pin-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-  .pinned-card .pin-excerpt { font-size: 11.5px; color: var(--muted); line-height: 1.5; max-height: 3em; overflow: hidden; }
-  .pinned-card .pin-remove {
-    position: absolute;
-    bottom: 8px;
-    right: 10px;
-    font-size: 11px;
-    color: var(--muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  .pinned-card .pin-remove:hover { color: var(--danger); }
-  .pin-empty {
-    border: 1px dashed var(--line);
-    border-radius: var(--radius-md);
-    padding: 18px 14px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 12px;
-    background: var(--surface-2);
-  }
-
-  .studio-main {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .scenario-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    box-shadow: var(--shadow-sm);
-  }
-  .scenario-card .scenario-label {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--accent-ink);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .scenario-input {
-    width: 100%;
-    min-height: 74px;
-    border: none;
-    background: transparent;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--ink);
-    resize: vertical;
-    outline: none;
-    line-height: 1.55;
-  }
-  .scenario-input::placeholder { color: var(--muted); }
-
-  .preset-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    padding-top: 12px;
-    margin-top: 10px;
-    border-top: 1px dashed var(--line-2);
-  }
-  .preset-group { display: flex; align-items: center; gap: 6px; }
-  .preset-group > .preset-label {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-right: 2px;
-  }
-  .preset-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    background: var(--surface-3);
-    color: var(--ink-2);
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid transparent;
-    cursor: pointer;
-  }
-  .preset-chip:hover { background: var(--surface); border-color: var(--line); }
-  .preset-chip.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  .scenario-run {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 14px;
-  }
-  .scenario-hint { font-size: 11.5px; color: var(--muted); }
-
-  .result-block {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-  }
-  .result-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 18px;
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--line);
-  }
-  .result-head .result-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
-  .result-head .result-sub { font-size: 11.5px; color: var(--muted); margin-left: 4px; }
-  .result-head .result-meta {
-    margin-left: auto;
-    display: flex;
-    gap: 8px;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-  .result-meta strong { color: var(--accent-ink); font-weight: 700; }
-
-  .result-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-  .result-section {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--line-2);
-    border-right: 1px solid var(--line-2);
-  }
-  .result-section:nth-child(2n) { border-right: none; }
-  .result-section.full { grid-column: 1 / -1; border-right: none; }
-  .result-section-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .result-section-body {
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: var(--ink-2);
-  }
-  .result-section-body .ref-tag {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--accent-ink);
-    background: var(--accent-soft);
-    padding: 1px 5px;
-    border-radius: 4px;
-    margin-left: 4px;
-    vertical-align: middle;
-  }
-
-  .final-prompt {
-    background: #1d2a24;
-    color: #f1eedf;
-    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    line-height: 1.65;
-    padding: 16px 18px 20px;
-    position: relative;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .final-prompt-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    padding: 4px 9px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .final-prompt .copy-btn {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.18);
-    padding: 4px 10px;
-    font-size: 11.5px;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  .final-prompt .copy-btn:hover { background: rgba(255,255,255,0.18); }
-
-  .result-actions {
-    display: flex;
-    gap: 8px;
-    padding: 14px 18px;
-    background: var(--surface-2);
-    border-top: 1px solid var(--line);
-    align-items: center;
-  }
-  .result-actions .spacer { flex: 1; }
-
-  .refine-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 8px 10px 8px 14px;
-    box-shadow: var(--shadow-sm);
-  }
-  .refine-bar input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    color: var(--ink);
-  }
-  .refine-bar input::placeholder { color: var(--muted); }
-  .refine-history {
-    margin-top: 6px;
-    font-size: 11.5px;
-    color: var(--muted);
-    padding: 0 4px;
-  }
-  .refine-history .prev-item {
-    display: inline-block;
-    margin-right: 10px;
-    padding: 2px 6px;
-    background: var(--surface-3);
-    border-radius: 5px;
-    color: var(--ink-2);
-  }
-
-  /* ====== Archive view (combined extract + library) ====== */
-  .archive-strip {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-  .strip-item {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    box-shadow: var(--shadow-sm);
-  }
-  .strip-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-  .strip-value { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
-  .strip-sub { font-size: 11.5px; color: var(--muted); }
-
-  .archive-layout {
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 18px;
-    align-items: start;
-  }
-  .archive-extract { position: sticky; top: 22px; display: flex; flex-direction: column; gap: 14px; }
-  .archive-list { display: flex; flex-direction: column; gap: 12px; }
-  @media (max-width: 1180px) {
-    .archive-layout { grid-template-columns: 1fr; }
-    .archive-extract { position: relative; top: 0; }
-    .studio-layout { grid-template-columns: 1fr; }
-    .studio-side { position: relative; top: 0; }
-    .result-sections { grid-template-columns: 1fr; }
-    .result-section { border-right: none; }
-  }
 </style>
 </head>
 <body>
@@ -1718,25 +1380,33 @@
     </div>
 
     <div class="nav-group">
-      <div class="nav-label">핵심 흐름</div>
-      <button class="nav-item" data-view="archive">
+      <div class="nav-label">워크스페이스</div>
+      <button class="nav-item" data-view="dashboard">
         <span class="dot">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
         </span>
-        아카이브
-        <span class="count">128</span>
+        대시보드
       </button>
-      <button class="nav-item" data-view="studio">
+      <button class="nav-item" data-view="run">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </span>
+        추출 실행
+      </button>
+      <button class="nav-item" data-view="generate">
         <span class="dot">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </span>
-        스튜디오
+        프롬프트 생성
         <span class="count">AI</span>
       </button>
-    </div>
-
-    <div class="nav-group">
-      <div class="nav-label">보조</div>
+      <button class="nav-item" data-view="library">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        프롬프트 라이브러리
+        <span class="count">128</span>
+      </button>
       <button class="nav-item" data-view="settings">
         <span class="dot">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1748,6 +1418,22 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </span>
         소개
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">데이터</div>
+      <button class="nav-item">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </span>
+        CSV / XLSX 내보내기
+      </button>
+      <button class="nav-item">
+        <span class="dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </span>
+        Google Sheet 열기
       </button>
     </div>
 
@@ -1763,52 +1449,235 @@
   <!-- ========== Main ========== -->
   <main class="main">
 
-    <!-- ===== Archive view (링크 추출 + 아카이브 그리드 통합) ===== -->
-    <section class="view" data-view="archive">
+    <!-- ===== Dashboard view ===== -->
+    <section class="view" data-view="dashboard">
       <div class="topbar">
         <div>
-          <div class="page-title">아카이브</div>
-          <div class="page-sub">링크를 붙여 넣으면 Gemini가 영상에서 프롬프트를 꺼내 이곳과 Google Sheet에 동시에 쌓아둡니다.</div>
+          <div class="page-title">대시보드</div>
+          <div class="page-sub">이번 주 클라우드에 수집된 레퍼런스와 그루밍 현황을 한눈에 확인하세요.</div>
         </div>
         <div class="topbar-actions">
-          <span class="topbar-status"><span class="status-dot"></span> Gemini 연결됨 · Sheet 동기화</span>
+          <span class="topbar-status"><span class="status-dot"></span> Gemini 연결됨</span>
           <button class="btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            CSV 내보내기
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            새로고침
           </button>
-          <button class="btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-            Sheet 열기
+          <button class="btn btn-primary" onclick="switchView('run')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            새 추출 시작
           </button>
         </div>
       </div>
 
-      <div class="archive-strip">
-        <div class="strip-item">
-          <div class="strip-label">누적 프롬프트</div>
-          <div class="strip-value">128</div>
-          <div class="strip-sub">이번 주 +12</div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">누적 프롬프트</div>
+          <div class="kpi-value">128</div>
+          <div class="kpi-delta up">▲ 12 이번 주</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
         </div>
-        <div class="strip-item">
-          <div class="strip-label">최근 추출 성공률</div>
-          <div class="strip-value">96%</div>
-          <div class="strip-sub">최근 50건 기준</div>
+        <div class="kpi">
+          <div class="kpi-label">추출 성공률 (최근 50건)</div>
+          <div class="kpi-value">96%</div>
+          <div class="kpi-delta up">▲ 2.1%p</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
         </div>
-        <div class="strip-item">
-          <div class="strip-label">이번 달 Gemini 비용</div>
-          <div class="strip-value">₩4,820</div>
-          <div class="strip-sub">평균 약 40원/건</div>
+        <div class="kpi">
+          <div class="kpi-label">이번 달 Gemini 비용</div>
+          <div class="kpi-value">₩4,820</div>
+          <div class="kpi-delta down">▼ 평균 40원/건</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2M12 16v2"/></svg>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">분류 태그</div>
+          <div class="kpi-value">24</div>
+          <div class="kpi-delta">카메라 워킹 · 장면 · 오브젝트</div>
+          <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </div>
         </div>
       </div>
 
-      <div class="archive-layout">
-        <!-- LEFT: 추출 실행 -->
-        <div class="archive-extract">
+      <div class="run-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">최근 추출 흐름</div>
+              <div class="card-sub">지난 7일 · 일별 성공/실패 건수</div>
+            </div>
+            <div class="card-header-action">
+              <button class="btn btn-sm btn-ghost">7일</button>
+              <button class="btn btn-sm btn-ghost">30일</button>
+            </div>
+          </div>
+          <!-- Mini bar chart -->
+          <svg viewBox="0 0 600 180" style="width:100%; height:180px;">
+            <defs>
+              <linearGradient id="barG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#4a8a72"/>
+                <stop offset="100%" stop-color="#2f6a54"/>
+              </linearGradient>
+            </defs>
+            <g font-family="Pretendard" font-size="11" fill="#7a857e">
+              <text x="0" y="30">30</text>
+              <text x="0" y="80">15</text>
+              <text x="0" y="130">0</text>
+            </g>
+            <g transform="translate(30,0)">
+              <line x1="0" y1="30" x2="570" y2="30" stroke="#ece7da" stroke-dasharray="3,4"/>
+              <line x1="0" y1="80" x2="570" y2="80" stroke="#ece7da" stroke-dasharray="3,4"/>
+              <line x1="0" y1="130" x2="570" y2="130" stroke="#ece7da"/>
+              <g>
+                <rect x="10" y="90" width="40" height="40" rx="4" fill="url(#barG)"/>
+                <rect x="90" y="60" width="40" height="70" rx="4" fill="url(#barG)"/>
+                <rect x="170" y="45" width="40" height="85" rx="4" fill="url(#barG)"/>
+                <rect x="250" y="75" width="40" height="55" rx="4" fill="url(#barG)"/>
+                <rect x="330" y="35" width="40" height="95" rx="4" fill="url(#barG)"/>
+                <rect x="410" y="50" width="40" height="80" rx="4" fill="url(#barG)"/>
+                <rect x="490" y="25" width="40" height="105" rx="4" fill="url(#barG)"/>
+              </g>
+              <g font-family="Pretendard" font-size="11" fill="#7a857e" text-anchor="middle">
+                <text x="30" y="150">월</text>
+                <text x="110" y="150">화</text>
+                <text x="190" y="150">수</text>
+                <text x="270" y="150">목</text>
+                <text x="350" y="150">금</text>
+                <text x="430" y="150">토</text>
+                <text x="510" y="150">일</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">카메라 워킹 Top 5</div>
+              <div class="card-sub">가장 자주 등장한 분류</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">시간 정지</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:82%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">32</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">달리 인</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:62%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">24</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">스테디캠</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:48%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">19</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">드론 샷</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:38%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">15</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; font-size:13px; font-weight:600;">클로즈업</div>
+              <div style="flex:2; height:6px; background:var(--surface-3); border-radius:999px; overflow:hidden;">
+                <div style="width:28%; height:100%; background:var(--accent); border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:26px; text-align:right;">11</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">최근 작업 내역</div>
+            <div class="card-sub">가장 최근 5건의 추출 결과</div>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-sm" onclick="switchView('library')">
+              전체 보기 →
+            </button>
+          </div>
+        </div>
+        <ul class="activity-list" style="max-height:none;">
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DXGdtNtEwhu</div>
+              <div class="activity-msg">추출 완료 · 시간 정지 + 달리 인 · 약 38원</div>
+            </div>
+            <div class="activity-time">방금</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DVkP9tR_xYq</div>
+              <div class="activity-msg">추출 완료 · 스테디캠 · 약 41원</div>
+            </div>
+            <div class="activity-time">2분 전</div>
+          </li>
+          <li class="activity-item fail">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">youtube.com/shorts/abc123</div>
+              <div class="activity-msg">비공개 영상 · 다운로드 불가</div>
+            </div>
+            <div class="activity-time">5분 전</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DU7oJLaFmN2</div>
+              <div class="activity-msg">추출 완료 · 드론 샷 + 틸트 다운 · 약 45원</div>
+            </div>
+            <div class="activity-time">12분 전</div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-url">instagram.com/reel/DT3kQhRx_Qi</div>
+              <div class="activity-msg">추출 완료 · 클로즈업 · 약 36원</div>
+            </div>
+            <div class="activity-time">1시간 전</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== Run view ===== -->
+    <section class="view" data-view="run">
+      <div class="topbar">
+        <div>
+          <div class="page-title">추출 실행</div>
+          <div class="page-sub">영감을 주는 영상 링크를 붙여 넣으면, Grommy가 원문 프롬프트를 꺼내 클라우드에 차곡차곡 쌓아드려요.</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="topbar-status"><span class="status-dot"></span> 실행 중 · 14 / 22</span>
+        </div>
+      </div>
+
+      <div class="run-grid">
+        <div>
           <div class="input-wrap">
             <div class="input-tabs">
               <button class="input-tab active">링크 붙여넣기</button>
               <button class="input-tab">파일로 가져오기</button>
-              <button class="input-tab">클립보드</button>
+              <button class="input-tab">클립보드에서 가져오기</button>
             </div>
             <textarea class="input-area" placeholder="https://www.instagram.com/reel/DXGdtNtEwhu/
 https://www.instagram.com/reel/DVkP9tR_xYq/
@@ -1816,376 +1685,428 @@ https://youtu.be/..."></textarea>
             <div class="input-footer">
               <div class="input-hint">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <strong>22</strong>개 링크 감지 · 예상 <strong>약 880원</strong>
+                <strong>22</strong>개 링크 감지됨 · 예상 비용 <strong>약 880원</strong>
               </div>
               <div class="input-actions">
-                <button class="btn btn-sm">비우기</button>
+                <button class="btn btn-sm">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  비우기
+                </button>
                 <button class="btn btn-primary btn-lg">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  추출 시작
+                  프롬프트 추출 시작
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="progress-card">
-            <div class="progress-head">
-              <div class="progress-title">진행 상태</div>
-              <span class="progress-badge">실행 중</span>
+          <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">추출 옵션</div>
+                <div class="card-sub">이번 실행에만 적용됩니다</div>
+              </div>
             </div>
-            <div class="progress-bar"><div class="progress-fill"></div></div>
-            <div class="progress-meta">
-              <span><strong style="color:var(--ink); font-weight:700;">14</strong> / 22 완료</span>
-              <span>남은 약 2분</span>
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+              <div class="field" style="margin:0;">
+                <label class="field-label">추출 모드</label>
+                <select class="field-input">
+                  <option>표준 분석 (권장)</option>
+                  <option>정밀 분석 (비용 ↑)</option>
+                  <option>빠른 요약 (비용 ↓)</option>
+                </select>
+              </div>
+              <div class="field" style="margin:0;">
+                <label class="field-label">Google Sheet 반영</label>
+                <select class="field-input">
+                  <option>기존 행 업데이트 + 신규 추가</option>
+                  <option>신규 행만 추가</option>
+                  <option>시트에 반영하지 않음</option>
+                </select>
+              </div>
             </div>
-            <div class="progress-summary">
-              분석 중 · instagram.com/reel/DXGdtNtEwhu
-            </div>
-            <ul class="activity-list">
-              <li class="activity-item">
-                <div class="activity-dot"></div>
-                <div>
-                  <div class="activity-url">/reel/DXGdtNtEwhu</div>
-                  <div class="activity-msg">완료 · 시간 정지 + 달리 인</div>
-                </div>
-                <div class="activity-time">0:03</div>
-              </li>
-              <li class="activity-item">
-                <div class="activity-dot"></div>
-                <div>
-                  <div class="activity-url">/reel/DVkP9tR_xYq</div>
-                  <div class="activity-msg">완료 · 스테디캠</div>
-                </div>
-                <div class="activity-time">0:08</div>
-              </li>
-              <li class="activity-item fail">
-                <div class="activity-dot"></div>
-                <div>
-                  <div class="activity-url">youtu.be/abc123</div>
-                  <div class="activity-msg">비공개 영상 · 다운로드 불가</div>
-                </div>
-                <div class="activity-time">0:11</div>
-              </li>
-              <li class="activity-item">
-                <div class="activity-dot"></div>
-                <div>
-                  <div class="activity-url">/reel/DU7oJLaFmN2</div>
-                  <div class="activity-msg">완료 · 드론 샷</div>
-                </div>
-                <div class="activity-time">0:15</div>
-              </li>
-            </ul>
           </div>
         </div>
 
-        <!-- RIGHT: 아카이브 리스트 -->
-        <div class="archive-list">
-          <div class="results-toolbar">
-            <div class="search-box">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="search-input" type="search" placeholder="예: 시간 정지, 술집, dolly, 괴물 전투">
-            </div>
-            <button class="btn btn-sm">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
-              고급 필터
-            </button>
-            <button class="btn btn-sm btn-ghost">필터 초기화</button>
+        <div class="progress-card">
+          <div class="progress-head">
+            <div class="progress-title">진행 상태</div>
+            <span class="progress-badge">실행 중</span>
           </div>
-
-          <div class="filter-bar">
-            <span class="filter-label">카메라 워킹</span>
-            <button class="chip active">시간 정지 <span class="count">32</span></button>
-            <button class="chip">달리 인 <span class="count">24</span></button>
-            <button class="chip">스테디캠 <span class="count">19</span></button>
-            <button class="chip">드론 샷 <span class="count">15</span></button>
-            <button class="chip">클로즈업 <span class="count">11</span></button>
-            <button class="chip">와이드 <span class="count">9</span></button>
-            <button class="chip">틸트 다운 <span class="count">7</span></button>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
           </div>
-
-          <div class="results-table-wrap">
-            <table class="results">
-              <thead>
-                <tr>
-                  <th class="col-thumb"></th>
-                  <th class="col-camera">카메라 워킹</th>
-                  <th class="col-prompt">프롬프트 (영문)</th>
-                  <th class="col-content">내용</th>
-                  <th class="col-meta">메타</th>
-                  <th class="col-actions"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="clickable-row" onclick="openDrawer(this)">
-                  <td><div class="thumb">IG</div></td>
-                  <td>
-                    <div class="tag-row">
-                      <span class="tag">시간 정지</span>
-                      <span class="tag">달리 인</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="prompt-text">A hyper-realistic cinematic shot of a bar frozen in time, raindrops suspended mid-air, a lone figure walking slowly toward the camera with a dolly-in motion…</div>
-                  </td>
-                  <td><div class="content-text">비 오는 도시의 술집, 시간이 멈춘 듯한 장면 · 주인공이 카메라 방향으로 천천히 다가옴</div></td>
-                  <td>
-                    <div class="meta-col">방금 · 약 38원</div>
-                    <a class="meta-link" href="#">열기 →</a>
-                  </td>
-                  <td class="row-actions">
-                    <button class="icon-btn" title="더 보기">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                    </button>
-                  </td>
-                </tr>
-                <tr class="clickable-row" onclick="openDrawer(this)">
-                  <td><div class="thumb">IG</div></td>
-                  <td>
-                    <div class="tag-row"><span class="tag">스테디캠</span></div>
-                  </td>
-                  <td>
-                    <div class="prompt-text">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character, soft rain falling, reflections on wet asphalt…</div>
-                  </td>
-                  <td><div class="content-text">네온 간판이 켜진 뒷골목을 따라가는 스테디캠 샷</div></td>
-                  <td>
-                    <div class="meta-col">2분 전 · 약 41원</div>
-                    <a class="meta-link" href="#">열기 →</a>
-                  </td>
-                  <td class="row-actions">
-                    <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
-                  </td>
-                </tr>
-                <tr class="clickable-row" onclick="openDrawer(this)">
-                  <td><div class="thumb">IG</div></td>
-                  <td>
-                    <div class="tag-row">
-                      <span class="tag">드론 샷</span>
-                      <span class="tag">틸트 다운</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="prompt-text">Aerial drone shot descending over a futuristic Seoul skyline at dusk, the camera tilts down from the sky toward a single rooftop where a figure stands…</div>
-                  </td>
-                  <td><div class="content-text">황혼의 미래도시 서울을 내려다보는 드론 샷, 옥상에 선 인물로 틸트 다운</div></td>
-                  <td>
-                    <div class="meta-col">12분 전 · 약 45원</div>
-                    <a class="meta-link" href="#">열기 →</a>
-                  </td>
-                  <td class="row-actions">
-                    <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
-                  </td>
-                </tr>
-                <tr class="clickable-row" onclick="openDrawer(this)">
-                  <td><div class="thumb">IG</div></td>
-                  <td>
-                    <div class="tag-row"><span class="tag">클로즈업</span></div>
-                  </td>
-                  <td>
-                    <div class="prompt-text">Extreme close-up of an eye slowly opening, reflection of a burning city visible in the iris, shallow depth of field, 85mm lens feel…</div>
-                  </td>
-                  <td><div class="content-text">눈동자에 불타는 도시가 비치는 극단적 클로즈업</div></td>
-                  <td>
-                    <div class="meta-col">1시간 전 · 약 36원</div>
-                    <a class="meta-link" href="#">열기 →</a>
-                  </td>
-                  <td class="row-actions">
-                    <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
-                  </td>
-                </tr>
-                <tr class="clickable-row" onclick="openDrawer(this)">
-                  <td><div class="thumb">YT</div></td>
-                  <td>
-                    <div class="tag-row"><span class="tag tag-muted">미분류</span></div>
-                  </td>
-                  <td>
-                    <div class="prompt-text">Wide establishing shot of a post-apocalyptic desert, sandstorm approaching from the horizon, a lone vehicle kicking up dust…</div>
-                  </td>
-                  <td><div class="content-text">포스트 아포칼립스 사막, 지평선에서 다가오는 모래폭풍</div></td>
-                  <td>
-                    <div class="meta-col">어제 · 약 52원</div>
-                    <a class="meta-link" href="#">열기 →</a>
-                  </td>
-                  <td class="row-actions">
-                    <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="progress-meta">
+            <span><strong style="color:var(--ink); font-weight:700;">14</strong> / 22 완료</span>
+            <span>예상 남은 시간 · 약 2분</span>
           </div>
+          <div class="progress-summary">
+            분석 중 · instagram.com/reel/DXGdtNtEwhu/ (카메라 워킹 추정 중…)
+          </div>
+          <ul class="activity-list">
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DXGdtNtEwhu</div>
+                <div class="activity-msg">추출 완료 ·시간 정지 + 달리 인</div>
+              </div>
+              <div class="activity-time">0:03</div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DVkP9tR_xYq</div>
+                <div class="activity-msg">추출 완료 ·스테디캠</div>
+              </div>
+              <div class="activity-time">0:08</div>
+            </li>
+            <li class="activity-item fail">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">youtu.be/abc123</div>
+                <div class="activity-msg">비공개 영상 · 다운로드 불가</div>
+              </div>
+              <div class="activity-time">0:11</div>
+            </li>
+            <li class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-url">/reel/DU7oJLaFmN2</div>
+                <div class="activity-msg">추출 완료 ·드론 샷</div>
+              </div>
+              <div class="activity-time">0:15</div>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- ===== Studio view (구조화 결과 블록 중심) ===== -->
-    <section class="view" data-view="studio">
+    <!-- ===== Generate (AI Chat) view ===== -->
+    <section class="view" data-view="generate">
       <div class="topbar">
         <div>
-          <div class="page-title">스튜디오</div>
-          <div class="page-sub">참조할 프롬프트를 아카이브에서 고정하고 시나리오를 넣으면, Gemini가 장면/인물/카메라/조명/분위기 구조에 맞춰 시네마틱 프롬프트를 생성합니다.</div>
+          <div class="page-title">그루밍 스튜디오</div>
+          <div class="page-sub">시나리오나 기획 의도를 던지면, 클라우드에 쌓인 128개 레퍼런스에서 뽑아낸 규칙을 참고해 당신의 언어로 정교하게 그루밍해드려요.</div>
         </div>
         <div class="topbar-actions">
-          <span class="topbar-status"><span class="status-dot"></span> Gemini 2.5 Flash · 참조 규칙 24개</span>
+          <span class="topbar-status"><span class="status-dot"></span> Gemini 2.5 Flash · 그루밍 규칙 24개 로드됨</span>
           <button class="btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-            초기화
+            새 대화
           </button>
         </div>
       </div>
 
-      <div class="studio-layout">
-        <!-- LEFT: 참조 고정 카드 -->
-        <div class="studio-side">
-          <div class="pin-head">
+      <div class="chat-layout">
+        <!-- Chat main -->
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-avatar">G</div>
             <div>
-              <div class="pin-title">참조 고정</div>
-              <div class="pin-sub">아카이브에서 ★로 고정한 프롬프트</div>
+              <div class="chat-title">Grommy — 당신의 AI 프롬프트 그루머</div>
+              <div class="chat-meta">Gemini · 클라우드 아카이브 규칙 참조 활성</div>
             </div>
-            <button class="btn btn-sm btn-ghost" onclick="switchView('archive')">+ 추가</button>
-          </div>
-
-          <div class="pinned-card">
-            <span class="pin-num">1</span>
-            <div class="pin-name">시간 정지 속 빗방울 터치</div>
-            <div class="pin-tags">
-              <span class="tag">시간 정지</span>
-              <span class="tag">빗방울</span>
-            </div>
-            <div class="pin-excerpt">A hyper-realistic cinematic shot of a city street frozen in time, raindrops suspended mid-air…</div>
-            <button class="pin-remove" title="고정 해제">✕</button>
-          </div>
-
-          <div class="pinned-card">
-            <span class="pin-num">2</span>
-            <div class="pin-name">스테디캠 네온 골목 follow</div>
-            <div class="pin-tags">
-              <span class="tag">스테디캠</span>
-            </div>
-            <div class="pin-excerpt">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character…</div>
-            <button class="pin-remove" title="고정 해제">✕</button>
-          </div>
-
-          <div class="pinned-card">
-            <span class="pin-num">3</span>
-            <div class="pin-name">드론 · 틸트 다운 도시 샷</div>
-            <div class="pin-tags">
-              <span class="tag">드론 샷</span>
-              <span class="tag">틸트 다운</span>
-            </div>
-            <div class="pin-excerpt">Aerial drone shot descending over a futuristic Seoul skyline at dusk…</div>
-            <button class="pin-remove" title="고정 해제">✕</button>
-          </div>
-
-          <div class="pin-empty">4번째 참조를 추가하면 생성 정확도가 올라갑니다</div>
-        </div>
-
-        <!-- RIGHT: 시나리오 → 구조화 결과 -->
-        <div class="studio-main">
-          <!-- 시나리오 입력 + 프리셋 -->
-          <div class="scenario-card">
-            <div class="scenario-label">시나리오</div>
-            <textarea class="scenario-input" placeholder="만들고 싶은 장면을 자연스럽게 적어주세요. 예: 비 오는 밤 도시의 뒷골목, 시간이 멈춘 순간 주인공이 정면으로 카메라를 향해 걸어온다.">비 오는 밤 도시의 뒷골목, 시간이 멈춰 있고 주인공이 떨어지는 빗방울 사이를 천천히 걷는 장면. 카메라는 주인공을 뒤에서 따라가다가 서서히 정면으로 돌아선다.</textarea>
-
-            <div class="preset-bar">
-              <div class="preset-group">
-                <span class="preset-label">영상 길이</span>
-                <button class="preset-chip">5s</button>
-                <button class="preset-chip active">10s</button>
-                <button class="preset-chip">15s</button>
-              </div>
-              <div class="preset-group">
-                <span class="preset-label">샷 타입</span>
-                <button class="preset-chip active">Medium</button>
-                <button class="preset-chip">Wide</button>
-                <button class="preset-chip">Close-up</button>
-              </div>
-              <div class="preset-group">
-                <span class="preset-label">카메라 무빙</span>
-                <button class="preset-chip active">Steadicam follow</button>
-                <button class="preset-chip">Dolly in</button>
-                <button class="preset-chip">Aerial drone</button>
-                <button class="preset-chip">Tracking</button>
-              </div>
-            </div>
-
-            <div class="scenario-run">
-              <div class="scenario-hint">⌘ + Enter 로 생성 · 참조 3개 자동 적용</div>
-              <button class="btn btn-primary btn-lg">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                시네마틱 프롬프트 생성
+            <div class="chat-header-actions">
+              <button class="icon-btn" title="대화 내보내기">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button class="icon-btn" title="설정">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               </button>
             </div>
           </div>
 
-          <!-- 구조화된 결과 블록 -->
-          <div class="result-block">
-            <div class="result-head">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              <div class="result-title">구조화된 프롬프트</div>
-              <span class="result-sub">10s · Medium · Steadicam</span>
-              <div class="result-meta">
-                참조 <strong>3건</strong> 적용 · 생성 <strong>약 38원</strong>
+          <div class="chat-body">
+            <!-- AI greeting -->
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">안녕하세요. 만들고 싶은 장면이나 시나리오를 편하게 써주세요. 예를 들어 <strong>"비 오는 도시, 시간이 멈춘 바 앞에서 주인공이 유리병을 낚아채는 장면"</strong> 같은 식이요. 클라우드에 쌓인 비슷한 연출을 참고해서 당신의 언어에 맞게 그루밍해드릴게요.</div>
+            </div>
+
+            <!-- User message -->
+            <div class="chat-msg user">
+              <div class="msg-avatar">S</div>
+              <div class="chat-bubble">비 오는 밤 도시의 뒷골목, 시간이 멈춰 있고 주인공이 떨어지는 빗방울 사이를 천천히 걷는 장면. 카메라는 주인공을 뒤에서 따라가다가 서서히 정면으로 돌아선다.</div>
+            </div>
+
+            <!-- AI reply with generated prompt -->
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">
+                좋습니다. 클라우드에서 <strong>"시간 정지 + 빗방울"</strong> 연출 3건과 <strong>"스테디캠 follow → reverse"</strong> 패턴 2건을 불러와 그루밍했어요. 다듬어진 결과입니다:
+                <div class="ai-response-prompt">
+<button class="copy-btn">복사</button>A hyper-realistic cinematic shot of a rain-soaked back alley at night, time frozen mid-scene — thousands of raindrops suspended motionless in the air, neon signs reflecting on wet asphalt. A lone figure in a dark coat walks slowly through the frozen rain. Camera begins as a steadicam follow-shot from behind, then arcs smoothly around to face the character, revealing their expression. Shot on ARRI Alexa, 35mm lens, shallow depth of field, volumetric light, film grain, 24fps cinematic feel.</div>
+                <div class="ai-refs">
+                  <span class="ai-ref-pill"><span class="ref-num">1</span> 시간 정지 속 빗방울 터치 상세 연출</span>
+                  <span class="ai-ref-pill"><span class="ref-num">2</span> 호텔 앞 시간 정지 및 충격파 연출</span>
+                  <span class="ai-ref-pill"><span class="ref-num">3</span> 스테디캠 — neon-lit alley follow</span>
+                </div>
               </div>
             </div>
 
-            <div class="result-sections">
-              <div class="result-section">
-                <div class="result-section-label">📹 SCENE · 장면</div>
-                <div class="result-section-body">Rain-soaked urban back alley at night, time completely frozen mid-scene. Thousands of raindrops suspended motionless in the air, neon signs reflecting on the wet asphalt.<span class="ref-tag">REF 1</span></div>
-              </div>
-              <div class="result-section">
-                <div class="result-section-label">👤 SUBJECT · 인물</div>
-                <div class="result-section-body">A lone figure in a dark coat, walking slowly through the frozen rain, face gradually revealed as the camera turns.</div>
-              </div>
-              <div class="result-section">
-                <div class="result-section-label">🎥 CAMERA · 카메라</div>
-                <div class="result-section-body">Steadicam follow from behind, then smooth 180° arc to face the subject. 35mm lens, shallow depth of field, eye-level.<span class="ref-tag">REF 2</span></div>
-              </div>
-              <div class="result-section">
-                <div class="result-section-label">💡 LIGHT · 조명 & 색</div>
-                <div class="result-section-body">Cold neon magenta–cyan reflections, volumetric light through rain, deep shadows, muted teal blacks.</div>
-              </div>
-              <div class="result-section full">
-                <div class="result-section-label">🎭 MOOD · 분위기 & 템포</div>
-                <div class="result-section-body">Cinematic noir atmosphere, 24fps, slow deliberate pacing. Film grain, anamorphic flare, ARRI Alexa cinematic feel.<span class="ref-tag">REF 3</span></div>
-              </div>
+            <!-- User follow-up -->
+            <div class="chat-msg user">
+              <div class="msg-avatar">S</div>
+              <div class="chat-bubble">카메라 움직임을 드론 샷으로 바꿔줘. 위에서 내려다보다가 서서히 내려오는 느낌.</div>
             </div>
 
-            <div class="final-prompt">
-              <button class="copy-btn">복사</button>
-              <div class="final-prompt-tab">📝 FINAL · 10s · EN</div>A hyper-realistic cinematic shot of a rain-soaked back alley at night, time frozen mid-scene — thousands of raindrops suspended motionless in the air, neon signs reflecting on wet asphalt. A lone figure in a dark coat walks slowly through the frozen rain. Camera begins as a steadicam follow-shot from behind, then arcs smoothly around to face the character, revealing their expression. Cold neon magenta–cyan lighting, volumetric light through rain, deep shadows. Shot on ARRI Alexa, 35mm lens, shallow depth of field, anamorphic flare, film grain, 24fps cinematic feel. Duration: 10 seconds.</div>
-
-            <div class="result-actions">
-              <button class="btn btn-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                아카이브에 저장
-              </button>
-              <button class="btn btn-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                씨댄스로 보내기
-              </button>
-              <div class="spacer"></div>
-              <button class="btn btn-sm btn-ghost">다시 생성</button>
+            <div class="chat-msg ai">
+              <div class="msg-avatar">G</div>
+              <div class="chat-bubble">
+                카메라 워킹만 <strong>"aerial drone → descending tilt"</strong> 패턴으로 다시 그루밍했습니다. 나머지 장면 요소는 유지했어요.
+                <div class="ai-response-prompt">
+<button class="copy-btn">복사</button>A hyper-realistic cinematic shot of a rain-soaked back alley at night, time frozen mid-scene — thousands of raindrops suspended motionless in the air, neon signs reflecting on wet asphalt. A lone figure in a dark coat stands still at the center of the frozen rain. Camera begins as an aerial drone shot looking straight down from above, then slowly descends while tilting forward, gradually revealing the character at eye level. Shot on ARRI Alexa, 35mm lens, shallow depth of field, volumetric light, film grain, 24fps cinematic feel.</div>
+                <div class="ai-refs">
+                  <span class="ai-ref-pill"><span class="ref-num">4</span> 드론 샷 · 틸트 다운 패턴</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 추가 다듬기 (inline refine) -->
-          <div>
-            <div class="refine-bar">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              <input placeholder="추가로 다듬기 — 예: 카메라를 드론 샷으로 바꿔줘 / 더 어둡게 / 톤을 부드럽게">
-              <button class="btn btn-primary btn-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                다듬기
-              </button>
+          <div class="chat-composer">
+            <div class="chat-templates">
+              <button class="template-chip">🎬 영화적 와이드샷</button>
+              <button class="template-chip">⏱️ 시간 정지 연출</button>
+              <button class="template-chip">🚁 드론 샷</button>
+              <button class="template-chip">🔥 격투/전투 시퀀스</button>
+              <button class="template-chip">🌆 도시 무드</button>
             </div>
-            <div class="refine-history">
-              이전 수정 · <span class="prev-item">시작 샷 주변 빗방울 수 증가</span> <span class="prev-item">카메라 속도 slow down</span>
+            <div class="composer-box">
+              <textarea class="composer-input" placeholder="장면, 시나리오, 분위기를 편하게 써주세요. 원하는 카메라 워킹을 구체적으로 지정해도 좋아요."></textarea>
+              <div class="composer-actions">
+                <button class="icon-btn small" title="이미지/레퍼런스 첨부">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button class="icon-btn small" title="클라우드에서 레퍼런스 가져오기">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </button>
+                <span style="font-size:11.5px; color:var(--muted);">⌘ + Enter 로 그루밍</span>
+                <button class="btn btn-primary send">
+                  그루밍
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Context panel -->
+        <aside class="chat-context">
+          <div class="context-head">
+            <div class="context-title">참조된 클라우드 레퍼런스</div>
+            <div class="context-sub">이번 그루밍에 사용된 원본 · 클릭해서 열어보기</div>
+          </div>
+          <div class="context-scroll">
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">1</span>
+                <span class="context-card-rule">시간 정지 속 빗방울 터치</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">시간 정지</span>
+                <span class="tag">빗방울</span>
+              </div>
+              <div class="context-card-body">A hyper-realistic cinematic shot of a city street frozen in time, raindrops suspended mid-air, a lone figure…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">2</span>
+                <span class="context-card-rule">호텔 앞 시간 정지 · 충격파</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">시간 정지</span>
+                <span class="tag">충격파</span>
+              </div>
+              <div class="context-card-body">Time frozen in front of a luxury hotel, a shockwave radiating from the protagonist, debris suspended…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">3</span>
+                <span class="context-card-rule">스테디캠 네온 골목 follow</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">스테디캠</span>
+              </div>
+              <div class="context-card-body">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character…</div>
+            </div>
+            <div class="context-card">
+              <div class="context-card-head">
+                <span class="context-card-num">4</span>
+                <span class="context-card-rule">드론 · 틸트 다운 도시 샷</span>
+              </div>
+              <div class="context-card-tags">
+                <span class="tag">드론 샷</span>
+                <span class="tag">틸트 다운</span>
+              </div>
+              <div class="context-card-body">Aerial drone shot descending over a futuristic Seoul skyline at dusk, the camera tilts down from the sky…</div>
+            </div>
+            <div style="text-align:center; margin-top:6px;">
+              <button class="btn btn-sm btn-ghost">클라우드 아카이브에서 전체 보기 →</button>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 
+    <!-- ===== Library view ===== -->
+    <section class="view" data-view="library">
+      <div class="topbar">
+        <div>
+          <div class="page-title">클라우드 아카이브</div>
+          <div class="page-sub">그루밍된 프롬프트 128건이 클라우드에 정돈되어 있어요. 검색과 분류로 언제든 꺼내 쓰세요.</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            내보내기
+          </button>
+          <button class="btn btn-primary" onclick="switchView('run')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            새 그루밍
+          </button>
+        </div>
+      </div>
+
+      <div class="results-toolbar">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="search" placeholder="예: 시간 정지, 술집, dolly, 괴물 전투">
+        </div>
+        <button class="btn btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          고급 필터
+        </button>
+        <button class="btn btn-sm btn-ghost">필터 초기화</button>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">카메라 워킹</span>
+        <button class="chip active">시간 정지 <span class="count">32</span></button>
+        <button class="chip">달리 인 <span class="count">24</span></button>
+        <button class="chip">스테디캠 <span class="count">19</span></button>
+        <button class="chip">드론 샷 <span class="count">15</span></button>
+        <button class="chip">클로즈업 <span class="count">11</span></button>
+        <button class="chip">와이드 <span class="count">9</span></button>
+        <button class="chip">틸트 다운 <span class="count">7</span></button>
+        <button class="chip">줌 인 <span class="count">5</span></button>
+      </div>
+
+      <div class="results-table-wrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th class="col-thumb"></th>
+              <th class="col-camera">카메라 워킹</th>
+              <th class="col-prompt">프롬프트 (영문)</th>
+              <th class="col-content">내용</th>
+              <th class="col-meta">메타</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">시간 정지</span>
+                  <span class="tag">달리 인</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">A hyper-realistic cinematic shot of a bar frozen in time, raindrops suspended mid-air, a lone figure walking slowly toward the camera with a dolly-in motion…</div>
+              </td>
+              <td><div class="content-text">비 오는 도시의 술집, 시간이 멈춘 듯한 장면 · 주인공이 카메라 방향으로 천천히 다가옴</div></td>
+              <td>
+                <div class="meta-col">방금 · 약 38원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn" title="더 보기">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">스테디캠</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Steadicam follow-shot through a neon-lit alley, the camera floats behind a hooded character, soft rain falling, reflections on wet asphalt…</div>
+              </td>
+              <td><div class="content-text">네온 간판이 켜진 뒷골목을 따라가는 스테디캠 샷</div></td>
+              <td>
+                <div class="meta-col">2분 전 · 약 41원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">드론 샷</span>
+                  <span class="tag">틸트 다운</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Aerial drone shot descending over a futuristic Seoul skyline at dusk, the camera tilts down from the sky toward a single rooftop where a figure stands…</div>
+              </td>
+              <td><div class="content-text">황혼의 미래도시 서울을 내려다보는 드론 샷, 옥상에 선 인물로 틸트 다운</div></td>
+              <td>
+                <div class="meta-col">12분 전 · 약 45원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">IG</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag">클로즈업</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Extreme close-up of an eye slowly opening, reflection of a burning city visible in the iris, shallow depth of field, 85mm lens feel…</div>
+              </td>
+              <td><div class="content-text">눈동자에 불타는 도시가 비치는 극단적 클로즈업</div></td>
+              <td>
+                <div class="meta-col">1시간 전 · 약 36원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+            <tr class="clickable-row" onclick="openDrawer(this)">
+              <td><div class="thumb">YT</div></td>
+              <td>
+                <div class="tag-row">
+                  <span class="tag tag-muted">미분류</span>
+                </div>
+              </td>
+              <td>
+                <div class="prompt-text">Wide establishing shot of a post-apocalyptic desert, sandstorm approaching from the horizon, a lone vehicle kicking up dust…</div>
+              </td>
+              <td><div class="content-text">포스트 아포칼립스 사막, 지평선에서 다가오는 모래폭풍</div></td>
+              <td>
+                <div class="meta-col">어제 · 약 52원</div>
+                <a class="meta-link" href="#">열기 →</a>
+              </td>
+              <td class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <!-- ===== Settings view ===== -->
     <section class="view" data-view="settings">
@@ -2395,17 +2316,13 @@ https://youtu.be/..."></textarea>
       <!-- CTA -->
       <div class="about-cta">
         <div>
-          <h3>이제 첫 영상 링크로 시작해 보세요.</h3>
-          <p>링크 하나만 넣으면 Grommy가 프롬프트를 꺼내 아카이브에 정리해 둡니다.</p>
+          <h3>이제 당신의 첫 그루밍을 시작하세요.</h3>
+          <p>영상 링크 하나만 있으면 됩니다. Grommy가 나머지를 다듬어드릴게요.</p>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn btn-primary btn-lg" onclick="switchView('archive')">
+        <div>
+          <button class="btn btn-primary btn-lg" onclick="switchView('run')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            아카이브로 이동
-          </button>
-          <button class="btn btn-lg btn-ghost" onclick="switchView('studio')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2L3 7v6c0 5 9 9 9 9s9-4 9-9V7l-9-5z"/></svg>
-            스튜디오 열기
+            원문 그루밍 시작하기
           </button>
         </div>
       </div>
@@ -2481,7 +2398,7 @@ https://youtu.be/..."></textarea>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5"/><path d="M5 10l7-7 7 7"/><path d="M19 10v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4"/></svg>
         참조 고정
       </button>
-      <button class="btn btn-primary" data-action="regroom" onclick="closeDrawer(); switchView('studio');">
+      <button class="btn btn-primary" data-action="regroom" onclick="closeDrawer(); switchView('generate');">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         이 스타일로 새로 생성
       </button>
@@ -2579,23 +2496,6 @@ https://youtu.be/..."></textarea>
       const orig = e.target.textContent;
       e.target.textContent = '✓ 복사됨';
       setTimeout(() => { e.target.textContent = orig; }, 1200);
-    }
-  });
-
-  // Studio — preset chip group (single-select per row)
-  document.querySelectorAll('.preset-bar').forEach(bar => {
-    bar.querySelectorAll('.preset-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        bar.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-      });
-    });
-  });
-
-  // Studio — pinned card remove
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.pinned-card .pin-remove')) {
-      e.target.closest('.pinned-card').remove();
     }
   });
 </script>
