@@ -19,7 +19,13 @@ import extract
 
 
 TEMPLATE_PATH = Path(__file__).with_name("ui-mockup.html")
-VALID_VIEWS = {"dashboard", "run", "generate", "library", "settings", "about"}
+VALID_VIEWS = {"archive", "studio", "settings", "about"}
+LEGACY_VIEW_ALIASES = {
+    "dashboard": "archive",
+    "run": "archive",
+    "library": "archive",
+    "generate": "studio",
+}
 PUBLIC_URL_ENV_KEYS = (
     "PROMPT_EXTRACTOR_PUBLIC_URL",
     "PUBLIC_URL",
@@ -648,6 +654,15 @@ def compute_runtime_metrics(config: dict, snapshot: dict | None = None) -> dict:
     }
 
 
+def normalize_view_name(view: str) -> str:
+    view = (view or "").strip()
+    if view in LEGACY_VIEW_ALIASES:
+        return LEGACY_VIEW_ALIASES[view]
+    if view in VALID_VIEWS:
+        return view
+    return "about"
+
+
 class PromptExtractorHandler(BaseHTTPRequestHandler):
     server_version = "PromptExtractorWeb/3.0"
 
@@ -662,6 +677,15 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         if parsed.path == "/":
             query = urllib.parse.parse_qs(parsed.query)
             requested_view = (query.get("view") or [""])[-1]
+            if not requested_view:
+                self.render_home("about")
+                return
+            if requested_view in LEGACY_VIEW_ALIASES:
+                self.redirect_temporary(f"/?view={LEGACY_VIEW_ALIASES[requested_view]}")
+                return
+            if requested_view not in VALID_VIEWS:
+                self.redirect_temporary("/?view=about")
+                return
             self.render_home(requested_view)
             return
         if parsed.path == "/api/state":
@@ -709,20 +733,20 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             urls = normalize_urls(form.get("urls", ""))
             if not urls:
                 STATE.set_notice("링크를 한 줄에 하나씩 입력해 주세요.")
-                self.redirect("/?view=run")
+                self.redirect("/?view=archive")
                 return
             if not STATE.start(len(urls)):
                 STATE.set_notice("이미 작업이 실행 중입니다. 현재 작업이 끝난 뒤 다시 시도해 주세요.")
-                self.redirect("/?view=run")
+                self.redirect("/?view=archive")
                 return
             thread = threading.Thread(target=run_worker, args=(urls,), daemon=True)
             thread.start()
-            self.redirect("/?view=run")
+            self.redirect("/?view=archive")
             return
 
         if parsed.path == "/generate":
             message = form.get("message", "").strip()
-            return_view = form.get("return_view", "").strip() or "dashboard"
+            return_view = normalize_view_name(form.get("return_view", "").strip() or "studio")
             rows = [row for row in read_results_table(extract.load_config()) if row.get("링크")]
             if not message:
                 STATE.set_notice("시나리오나 장면 설명을 입력해 주세요.")
@@ -777,7 +801,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/save-generated":
-            return_view = form.get("return_view", "").strip() or "generate"
+            return_view = normalize_view_name(form.get("return_view", "").strip() or "studio")
             index_value = form.get("chat_index", "").strip()
             try:
                 chat_index = int(index_value)
@@ -810,7 +834,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/chat/clear":
-            return_view = form.get("return_view", "").strip() or "dashboard"
+            return_view = normalize_view_name(form.get("return_view", "").strip() or "studio")
             STATE.clear_chat()
             self.redirect(f"/?view={return_view}")
             return
@@ -819,17 +843,17 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
             url = form.get("url", "").strip()
             if not url:
                 STATE.set_notice("삭제할 링크가 없습니다.")
-                self.redirect("/?view=library")
+                self.redirect("/?view=archive")
                 return
             result = extract.delete_result_by_url(url)
             STATE.set_notice(result.get("sheet_status") or "삭제 완료")
-            self.redirect("/?view=library")
+            self.redirect("/?view=archive")
             return
 
         if parsed.path == "/clear":
             result = extract.clear_all_results()
             STATE.set_notice(result.get("sheet_status") or "전체 삭제 완료")
-            self.redirect("/?view=library")
+            self.redirect("/?view=archive")
             return
 
         self.send_error(HTTPStatus.NOT_FOUND)
@@ -844,7 +868,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit" if sheet_id else ""
         gemini_ready = extract.has_gemini_api_key()
         credentials_ready = extract.credentials_path_for(config).exists()
-        initial_view = requested_view if requested_view in VALID_VIEWS else ("run" if snapshot["running"] else ("dashboard" if results else "run"))
+        initial_view = normalize_view_name(requested_view)
         camera_counter = runtime["camera_counter"]
         current_session_cost = runtime["current_session_cost"]
         success_rate = runtime["success_rate"]
@@ -881,10 +905,24 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         if notice_html:
             template = template.replace('<main class="main">', f'<main class="main">\n{notice_html}', 1)
 
-        template = self._replace_view_section(template, "dashboard", self._render_dashboard_view(snapshot, recent_results, camera_counter, current_session_cost, success_rate, gemini_ready, sheet_url))
-        template = self._replace_view_section(template, "run", self._render_run_view(snapshot))
-        template = self._replace_view_section(template, "generate", self._render_generate_view(recent_results, camera_counter))
-        template = self._replace_view_section(template, "library", self._render_library_view(recent_results, camera_counter, sheet_url))
+        template = self._replace_view_section(
+            template,
+            "archive",
+            self._render_archive_view(
+                snapshot,
+                recent_results,
+                camera_counter,
+                current_session_cost,
+                success_rate,
+                gemini_ready,
+                sheet_url,
+            ),
+        )
+        template = self._replace_view_section(
+            template,
+            "studio",
+            self._render_studio_view(snapshot, recent_results, camera_counter, current_session_cost, gemini_ready),
+        )
         template = self._replace_view_section(
             template,
             "settings",
@@ -893,8 +931,6 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 
         template = template.replace('<span class="count">128</span>', f'<span class="count">{len(results)}</span>', 1)
         template = template.replace('Gemini 2.5 Flash · 그루밍 규칙 24개 로드됨', f'Gemini 직접 분석 · 카메라 규칙 {len(camera_counter) or 0}개 로드됨', 1)
-        template = template.replace('<main class="main">', '<main class="main"><div class="workspace-shell"><div class="workspace-left">', 1)
-        template = template.replace('</main>', f'</div>{self._render_global_assistant_panel(snapshot, recent_results, initial_view)}</div></main>', 1)
 
         script = self._build_client_script()
         template = re.sub(r"<script>.*?</script>\s*</body>", lambda _m: f"<script>{script}</script>\n</body>", template, flags=re.S)
@@ -937,7 +973,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
         payload = {
             "rows": rows,
             "camera_counts": runtime["camera_counter"].most_common(20),
-            "count": len(rows),
+            "count": len(runtime["results"]),
         }
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -1183,6 +1219,301 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
     def _replace_view_section(self, template: str, name: str, replacement: str) -> str:
         pattern = rf'<section class="view(?: active)?" data-view="{re.escape(name)}">.*?</section>'
         return re.sub(pattern, replacement, template, count=1, flags=re.S)
+
+    def _render_archive_view(
+        self,
+        snapshot: dict,
+        recent_results: list[dict[str, str]],
+        camera_counter: Counter[str],
+        current_session_cost: float,
+        success_rate: int,
+        gemini_ready: bool,
+        sheet_url: str,
+    ) -> str:
+        width = 0 if not snapshot["total"] else round((snapshot["completed"] / snapshot["total"]) * 100)
+        badge = "실행 중" if snapshot["running"] else "대기 중"
+        items_html = "".join(
+            self._render_activity_item(item.url, item.message, item.success, f"{index + 1}건")
+            for index, item in enumerate(snapshot["items"][-8:])
+        )
+        if not items_html:
+            items_html = '<li class="activity-item"><div><div class="activity-msg">링크를 넣고 시작하면 진행 내역이 이곳에 쌓입니다.</div></div></li>'
+
+        filter_chips = "".join(
+            f'<button class="chip" type="button" data-camera="{self._escape_attr(camera)}">{self._escape(camera)} <span class="count">{count}</span></button>'
+            for camera, count in camera_counter.most_common(12)
+        ) or '<span class="muted">아직 카메라 워킹 데이터가 없습니다.</span>'
+        rows_html = "".join(self._render_library_row(row) for row in recent_results)
+        if not rows_html:
+            rows_html = '<tr><td colspan="6" class="empty">아직 저장된 결과가 없습니다. 위 입력창에 인스타/유튜브 링크를 넣어 첫 프롬프트를 추출하세요.</td></tr>'
+
+        sheet_button = (
+            f'<button class="btn" type="button" onclick="window.open(\'{self._escape_attr(sheet_url)}\', \'_blank\')">Sheet 열기</button>'
+            if sheet_url
+            else '<button class="btn" type="button" onclick="switchView(\'settings\')">Sheet 설정</button>'
+        )
+        status_text = "Gemini 연결됨" if gemini_ready else "Gemini 키 필요"
+        sheet_text = "Sheet 동기화" if sheet_url else "Sheet 미설정"
+
+        return f'''
+<section class="view" data-view="archive">
+  <div class="topbar">
+    <div>
+      <div class="page-title">아카이브</div>
+      <div class="page-sub">인스타그램·유튜브 링크에서 프롬프트를 추출하고 Google Sheet와 함께 정리합니다.</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="topbar-status"><span class="status-dot"></span> {self._escape(status_text)} · {self._escape(sheet_text)}</span>
+      <button class="btn" type="button" onclick="window.location='/download/csv'">CSV 내보내기</button>
+      <button class="btn" type="button" onclick="window.location='/download/xlsx'">XLSX 내보내기</button>
+      {sheet_button}
+    </div>
+  </div>
+
+  <div class="archive-strip">
+    <div class="strip-item">
+      <div class="strip-label">누적 프롬프트</div>
+      <div class="strip-value" id="metric-results-count">{len(recent_results)}</div>
+      <div class="strip-sub">Google Sheet 기준</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-label">최근 추출 성공률</div>
+      <div class="strip-value" id="metric-success-rate">{success_rate}%</div>
+      <div class="strip-sub">현재 세션 기준</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-label">이번 세션 비용</div>
+      <div class="strip-value" id="metric-session-cost">₩{current_session_cost:.0f}</div>
+      <div class="strip-sub">Gemini 사용량 추정</div>
+    </div>
+  </div>
+
+  <div class="archive-layout">
+    <div class="archive-extract">
+      <form class="input-wrap" method="post" action="/run">
+        <div class="input-tabs">
+          <button class="input-tab active" type="button">링크 붙여넣기</button>
+          <button class="input-tab" type="button" disabled>파일로 가져오기</button>
+          <button class="input-tab" type="button" disabled>클립보드</button>
+        </div>
+        <textarea class="input-area" id="run-urls" name="urls" placeholder="https://www.instagram.com/reel/DXGdtNtEwhu/&#10;https://www.instagram.com/reel/DVkP9tR_xYq/&#10;https://youtu.be/..."></textarea>
+        <div class="input-footer">
+          <div class="input-hint"><strong class="link-count">0</strong>개 링크 감지 · 예상 비용 <strong class="cost-estimate">약 0원</strong></div>
+          <div class="input-actions">
+            <button class="btn btn-sm" type="button" id="clear-urls">비우기</button>
+            <button class="btn btn-primary btn-lg" type="submit" {'disabled' if snapshot['running'] else ''}>추출 시작</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="progress-card">
+        <div class="progress-head">
+          <div class="progress-title">진행 상태</div>
+          <span class="progress-badge" id="run-badge">{badge}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="run-progress-fill" style="width:{width}%;"></div></div>
+        <div class="progress-meta">
+          <span id="run-progress-text"><strong style="color:var(--ink); font-weight:700;">{snapshot['completed']}</strong> / {snapshot['total']} 완료</span>
+          <span id="run-progress-summary">{self._escape(snapshot['summary'])}</span>
+        </div>
+        <div class="progress-summary" id="run-status-line">{self._escape(snapshot['status'])} · {self._escape(snapshot['summary'])}</div>
+        <ul class="activity-list" id="run-activity-list">{items_html}</ul>
+      </div>
+    </div>
+
+    <div class="archive-list">
+      <div class="results-toolbar">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="content-search" type="search" placeholder="예: 시간 정지, 술집, dolly, 괴물 전투">
+        </div>
+        <button class="btn btn-sm" type="button" disabled>고급 필터</button>
+        <button class="btn btn-sm btn-ghost" type="button" id="reset-filters">필터 초기화</button>
+        <form method="post" action="/clear" onsubmit="return confirm('최근 결과 전체를 삭제하시겠습니까? 시트에서도 함께 삭제됩니다.')">
+          <button class="btn btn-sm btn-ghost" type="submit">전체 삭제</button>
+        </form>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">카메라 워킹</span>
+        <div id="library-filter-chips" style="display:flex; gap:8px; flex-wrap:wrap;">{filter_chips}</div>
+      </div>
+
+      <div class="results-table-wrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th class="col-thumb"></th>
+              <th class="col-camera">카메라 워킹</th>
+              <th class="col-prompt">프롬프트 (영문)</th>
+              <th class="col-content">내용</th>
+              <th class="col-meta">메타</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="library-results-body">{rows_html}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>'''
+
+    def _render_studio_view(
+        self,
+        snapshot: dict,
+        recent_results: list[dict[str, str]],
+        camera_counter: Counter[str],
+        current_session_cost: float,
+        gemini_ready: bool,
+    ) -> str:
+        chat_items = snapshot.get("chat_items", []) or [DEFAULT_CHAT_GREETING.copy()]
+        refs = recent_results[:3]
+        pinned_cards = []
+        for idx, row in enumerate(refs, start=1):
+            cameras = parse_camera_parts(row.get("카메라 워킹", ""))
+            prompt = row.get("프롬프트(영문)", "")
+            pinned_cards.append(
+                f'''<div class="pinned-card">
+                  <span class="pin-num">{idx}</span>
+                  <div class="pin-name">{self._escape(row.get("내용", "미분류 레퍼런스")[:48])}</div>
+                  <div class="pin-tags">{''.join(f'<span class="tag">{self._escape(camera)}</span>' for camera in cameras[:3]) or '<span class="tag tag-muted">미분류</span>'}</div>
+                  <div class="pin-excerpt">{self._escape(prompt[:140] + ("…" if len(prompt) > 140 else ""))}</div>
+                </div>'''
+            )
+        pinned_html = "".join(pinned_cards) or '<div class="pin-empty">아카이브에서 참조할 프롬프트를 먼저 저장하세요.</div>'
+
+        messages_html = []
+        latest_prompt = ""
+        latest_meta = f"참조 {len(refs)}건 적용 · 생성 약 {current_session_cost:.0f}원"
+        for message_index, item in enumerate(chat_items):
+            role = item.get("role", "ai")
+            bubble_class = "user" if role == "user" else "ai"
+            avatar = "U" if role == "user" else "G"
+            text = self._escape(item.get("text", ""))
+            prompt = item.get("prompt", "")
+            if prompt:
+                latest_prompt = prompt
+                latest_meta = item.get("meta", latest_meta) or latest_meta
+            prompt_html = ""
+            if prompt:
+                prompt_html = f'''
+<div class="ai-response-prompt">
+  <div class="prompt-tools">
+    <button class="copy-btn">복사</button>
+    <form method="post" action="/save-generated" style="display:inline;">
+      <input type="hidden" name="return_view" value="studio">
+      <input type="hidden" name="chat_index" value="{message_index}">
+      <button class="copy-btn" type="submit">아카이브 저장</button>
+    </form>
+  </div>
+  {self._escape(prompt)}
+</div>'''
+            messages_html.append(
+                f'''<div class="chat-msg {bubble_class}">
+                  <div class="msg-avatar">{avatar}</div>
+                  <div class="chat-bubble">{text}{prompt_html}</div>
+                </div>'''
+            )
+
+        final_prompt = latest_prompt or ""
+        final_body = self._escape(final_prompt) if final_prompt else "아직 생성된 최종 프롬프트가 없습니다. 시나리오를 입력하고 생성하면 여기에 정리됩니다."
+        status = "Gemini 2.5 Flash" if gemini_ready else "Gemini 키 필요"
+
+        return f'''
+<section class="view" data-view="studio">
+  <div class="topbar">
+    <div>
+      <div class="page-title">스튜디오</div>
+      <div class="page-sub">아카이브 레퍼런스를 참조해 새 영상 아이디어에 맞는 시네마틱 프롬프트를 생성합니다.</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="topbar-status"><span class="status-dot"></span> {self._escape(status)} · 참조 규칙 {len(camera_counter)}개</span>
+      <form method="post" action="/chat/clear"><input type="hidden" name="return_view" value="studio"><button class="btn" type="submit">초기화</button></form>
+    </div>
+  </div>
+
+  <div class="studio-layout">
+    <div class="studio-side">
+      <div class="pin-head">
+        <div>
+          <div class="pin-title">참조 고정</div>
+          <div class="pin-sub">아카이브에서 선택한 프롬프트</div>
+        </div>
+        <button class="btn btn-sm btn-ghost" type="button" onclick="switchView('archive')">+ 추가</button>
+      </div>
+      {pinned_html}
+      <div class="pin-empty">참조는 최대 5개까지 생성에 반영됩니다.</div>
+    </div>
+
+    <div class="studio-main">
+      <form class="scenario-card assistant-composer" method="post" action="/generate">
+        <input type="hidden" name="return_view" value="studio">
+        <input type="hidden" name="pinned_refs" id="pinned-refs-input" value="">
+        <div class="scenario-label">시나리오</div>
+        <textarea class="scenario-input composer-input" name="message" placeholder="만들고 싶은 장면을 자연스럽게 적어주세요. 예: 비 오는 밤 도시의 뒷골목, 시간이 멈춘 순간 주인공이 정면으로 카메라를 향해 걸어온다."></textarea>
+        <div id="pinned-ref-summary" style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; font-size:12px; color:var(--muted);">
+          <span>고정된 레퍼런스 없음</span>
+        </div>
+
+        <div class="preset-bar">
+          <div class="preset-group">
+            <span class="preset-label">영상 길이</span>
+            <button class="preset-chip" type="button">5s</button>
+            <button class="preset-chip active" type="button">10s</button>
+            <button class="preset-chip" type="button">15s</button>
+          </div>
+          <div class="preset-group">
+            <span class="preset-label">샷 타입</span>
+            <button class="preset-chip active" type="button">Medium</button>
+            <button class="preset-chip" type="button">Wide</button>
+            <button class="preset-chip" type="button">Close-up</button>
+          </div>
+          <div class="preset-group">
+            <span class="preset-label">카메라 무빙</span>
+            <button class="preset-chip active" type="button">Steadicam follow</button>
+            <button class="preset-chip" type="button">Dolly in</button>
+            <button class="preset-chip" type="button">Aerial drone</button>
+            <button class="preset-chip" type="button">Tracking</button>
+          </div>
+        </div>
+
+        <div class="scenario-run">
+          <div class="scenario-hint">참조 {len(refs)}개 자동 적용 · 생성 후 아래 결과에 누적됩니다</div>
+          <button class="btn btn-primary btn-lg" type="submit">시네마틱 프롬프트 생성</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">생성 대화</div>
+            <div class="card-sub">요청과 결과 이력을 한곳에서 확인합니다.</div>
+          </div>
+        </div>
+        <div class="chat-body" style="padding:0;">{''.join(messages_html)}</div>
+      </div>
+
+      <div class="result-block">
+        <div class="result-head">
+          <div class="result-title">구조화된 프롬프트</div>
+          <span class="result-sub">10s · Medium · Steadicam</span>
+          <div class="result-meta">{self._escape(latest_meta)}</div>
+        </div>
+        <div class="result-sections">
+          <div class="result-section"><div class="result-section-label">SCENE · 장면</div><div class="result-section-body">생성 결과에서 장면 조건을 분리해 표시할 자리입니다.</div></div>
+          <div class="result-section"><div class="result-section-label">SUBJECT · 인물</div><div class="result-section-body">인물/피사체 조건을 분리해 표시할 자리입니다.</div></div>
+          <div class="result-section"><div class="result-section-label">CAMERA · 카메라</div><div class="result-section-body">샷 타입, 렌즈, 무빙 조건을 분리해 표시할 자리입니다.</div></div>
+          <div class="result-section"><div class="result-section-label">LIGHT · 조명 & 색</div><div class="result-section-body">조명, 컬러, 질감 조건을 분리해 표시할 자리입니다.</div></div>
+          <div class="result-section full"><div class="result-section-label">MOOD · 분위기 & 템포</div><div class="result-section-body">무드, 리듬, 완성도 조건을 분리해 표시할 자리입니다.</div></div>
+        </div>
+        <div class="final-prompt">
+          <button class="copy-btn">복사</button>
+          <div class="final-prompt-tab">FINAL · EN</div>{final_body}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>'''
 
     def _render_dashboard_view(self, snapshot: dict, recent_results: list[dict[str, str]], camera_counter: Counter[str], current_session_cost: float, success_rate: int, gemini_ready: bool, sheet_url: str) -> str:
         latest_items = snapshot["items"][-5:]
@@ -1787,7 +2118,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 
     def _build_client_script(self) -> str:
         return r'''
-const initialView = document.body.dataset.initialView || 'dashboard';
+const initialView = document.body.dataset.initialView || 'about';
 const views = Array.from(document.querySelectorAll('.view'));
 const navItems = Array.from(document.querySelectorAll('.nav-item[data-view]'));
 
@@ -1841,7 +2172,7 @@ window.setPinnedReferences = (payloads, replace = false) => {
 window.prefillGeneratePrompt = (payload) => {
   const composer = document.querySelector('.assistant-composer .composer-input');
   if (!composer) return;
-  switchView('generate');
+  switchView('studio');
   const content = (payload?.content || '').trim();
   const prompt = (payload?.prompt || '').trim();
   const cameras = Array.isArray(payload?.cameras) ? payload.cameras.filter(Boolean) : [];
@@ -1862,6 +2193,20 @@ window.prefillGeneratePrompt = (payload) => {
 navItems.forEach(item => item.addEventListener('click', () => switchView(item.dataset.view)));
 switchView(initialView);
 renderPinnedRefs();
+
+Array.from(document.querySelectorAll('.preset-group')).forEach(group => {
+  group.addEventListener('click', (event) => {
+    const chip = event.target.closest('.preset-chip');
+    if (!chip) return;
+    group.querySelectorAll('.preset-chip').forEach(item => item.classList.remove('active'));
+    chip.classList.add('active');
+    const resultSub = document.querySelector('.result-sub');
+    if (resultSub) {
+      const active = Array.from(document.querySelectorAll('.preset-group .preset-chip.active')).map(item => item.textContent.trim());
+      resultSub.textContent = active.join(' · ');
+    }
+  });
+});
 
 // input tabs visual only
 Array.from(document.querySelectorAll('.input-tabs .input-tab')).forEach(tab => {
@@ -1992,7 +2337,7 @@ if (resetFilters) {
 window.filterByCameraTag = (camera) => {
   getFilterChips().forEach(chip => chip.classList.toggle('active', normalizeText(chip.dataset.camera || '') === normalizeText(camera)));
   applyFilters();
-  switchView('library');
+  switchView('archive');
 };
 bindChipEvents();
 applyFilters();
@@ -2191,7 +2536,7 @@ window.openDrawer = (row) => {
       `"카메라 워킹":${JSON.stringify(cameras.join(' / '))},` +
       `"프롬프트(영문)":${JSON.stringify(prompt || '')},` +
       `"링크":${JSON.stringify(link || '')}` +
-      `}]); switchView('generate'); closeDrawer(); return false;`
+      `}]); switchView('studio'); closeDrawer(); return false;`
     );
   }
   if (regroomBtn) {
@@ -2238,6 +2583,11 @@ document.addEventListener('click', (e) => {
 
     def redirect(self, location: str) -> None:
         self.send_response(HTTPStatus.SEE_OTHER)
+        self.send_header("Location", location)
+        self.end_headers()
+
+    def redirect_temporary(self, location: str) -> None:
+        self.send_response(HTTPStatus.FOUND)
         self.send_header("Location", location)
         self.end_headers()
 
