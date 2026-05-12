@@ -72,6 +72,12 @@ DEFAULT_CONFIG = {
     "credentials_path": str(DEFAULT_CREDENTIALS_PATH),
 }
 MODEL_CANDIDATES = ["gemini-2.5-flash"]
+DOWNLOAD_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0.0.0 Safari/537.36"
+)
+LAST_DOWNLOAD_ERROR = ""
 GEMINI_PRICING_USD_PER_1M = {
     "gemini-2.5-flash": {"input": 0.30, "output": 2.50},
     "gemini-2.0-flash": {"input": 0.10, "output": 0.40},
@@ -402,6 +408,7 @@ def run_command(
     error_message: str,
     cancel_event: threading.Event | None = None,
 ) -> subprocess.CompletedProcess[str] | None:
+    global LAST_DOWNLOAD_ERROR
     if was_cancelled(cancel_event):
         print("⏹️  사용자 중단 요청")
         return None
@@ -428,15 +435,21 @@ def run_command(
                 except subprocess.TimeoutExpired:
                     process.kill()
                 print(f"❌ {error_message}: 시간 초과")
+                if error_message.startswith("다운로드 실패"):
+                    LAST_DOWNLOAD_ERROR = "시간 초과"
                 return None
             time.sleep(0.2)
     except FileNotFoundError:
         print(f"❌ 명령어를 찾을 수 없습니다: {cmd[0]}")
+        if error_message.startswith("다운로드 실패"):
+            LAST_DOWNLOAD_ERROR = f"명령어를 찾을 수 없습니다: {cmd[0]}"
         return None
 
     if result.returncode != 0:
         detail = (result.stderr or result.stdout or "원인 미상").strip()
         print(f"❌ {error_message}: {detail}")
+        if error_message.startswith("다운로드 실패"):
+            LAST_DOWNLOAD_ERROR = detail
         return None
     return result
 
@@ -458,30 +471,91 @@ def sample_frames(frame_paths: list[Path], limit: int) -> list[Path]:
     return [frame_paths[index] for index in indexes]
 
 
+def normalize_download_url(url: str) -> str:
+    parsed = urlparse(url.strip())
+    if "instagram.com" in parsed.netloc.lower():
+        return parsed._replace(query="", fragment="").geturl()
+    return url.strip()
+
+
+def write_download_cookies(output_dir: Path) -> Path | None:
+    cookies_path = os.getenv("YTDLP_COOKIES_FILE", "").strip()
+    if cookies_path and Path(cookies_path).expanduser().exists():
+        return Path(cookies_path).expanduser()
+    cookies_text = os.getenv("YTDLP_COOKIES", "").strip() or os.getenv("INSTAGRAM_COOKIES", "").strip()
+    if not cookies_text:
+        return None
+    target = output_dir / "cookies.txt"
+    target.write_text(cookies_text, encoding="utf-8")
+    return target
+
+
+def compact_download_error(detail: str) -> str:
+    cleaned = re.sub(r"\s+", " ", detail or "").strip()
+    if not cleaned:
+        return "원인 미상"
+    lowered = cleaned.lower()
+    if "login" in lowered or "cookies" in lowered or "not logged in" in lowered:
+        return "인스타그램이 로그인/쿠키 인증을 요구했습니다. Render 환경변수에 YTDLP_COOKIES를 설정해야 할 수 있습니다."
+    if "private" in lowered or "unavailable" in lowered:
+        return "영상이 비공개이거나 현재 다운로드할 수 없는 상태입니다."
+    if "429" in lowered or "rate" in lowered or "blocked" in lowered:
+        return "인스타그램이 Render 서버의 다운로드 요청을 제한했습니다. 잠시 뒤 재시도하거나 쿠키 설정이 필요합니다."
+    return cleaned[:260]
+
+
 def download_video(url: str, output_dir: Path, cancel_event: threading.Event | None = None) -> Path | None:
+    global LAST_DOWNLOAD_ERROR
+    LAST_DOWNLOAD_ERROR = ""
     output_dir.mkdir(parents=True, exist_ok=True)
-    cmd = [
+    source_url = normalize_download_url(url)
+    cookies_file = write_download_cookies(output_dir)
+    base_cmd = [
         resolve_command("yt-dlp"),
         "--no-playlist",
-        "--format",
-        "mp4/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+        "--retries",
+        "3",
+        "--fragment-retries",
+        "3",
+        "--force-ipv4",
+        "--user-agent",
+        DOWNLOAD_USER_AGENT,
+        "--referer",
+        "https://www.instagram.com/",
+        "--add-header",
+        "Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
         "--output",
         str(output_dir / "video.%(ext)s"),
         "--no-warnings",
         "--print",
         "after_move:filepath",
-        url,
+    ]
+    if cookies_file:
+        base_cmd.extend(["--cookies", str(cookies_file)])
+    attempts = [
+        base_cmd + ["--format", "mp4/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best", source_url],
+        base_cmd + ["--format", "best[ext=mp4]/best", source_url],
     ]
     print("⬇️  다운로드 중...")
-    result = run_command(cmd, timeout=180, error_message="다운로드 실패", cancel_event=cancel_event)
-    if not result:
-        return None
-    filepath = result.stdout.strip().splitlines()[-1]
-    if filepath and Path(filepath).exists():
-        print("✅ 다운로드 완료")
-        return Path(filepath)
+    last_detail = ""
+    for index, cmd in enumerate(attempts, start=1):
+        result = run_command(cmd, timeout=240, error_message=f"다운로드 실패 ({index}/{len(attempts)})", cancel_event=cancel_event)
+        if result:
+            filepath = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+            if filepath and Path(filepath).exists():
+                print("✅ 다운로드 완료")
+                return Path(filepath)
+            videos = sorted(output_dir.glob("video.*"))
+            if videos:
+                print("✅ 다운로드 완료")
+                return videos[0]
+        last_detail = LAST_DOWNLOAD_ERROR or last_detail
     videos = sorted(output_dir.glob("video.*"))
-    return videos[0] if videos else None
+    if videos:
+        print("✅ 다운로드 완료")
+        return videos[0]
+    LAST_DOWNLOAD_ERROR = compact_download_error(last_detail)
+    return None
 
 
 def get_duration(video_path: Path, cancel_event: threading.Event | None = None) -> float:
@@ -1711,7 +1785,11 @@ def run_pipeline(
         work_dir = Path(temp_dir_str)
         video_path = download_video(url, work_dir, cancel_event=cancel_event)
         if not video_path:
-            return {"success": False, "url": url, "error": "사용자 중단" if was_cancelled(cancel_event) else "다운로드 실패"}
+            return {
+                "success": False,
+                "url": url,
+                "error": "사용자 중단" if was_cancelled(cancel_event) else f"다운로드 실패: {LAST_DOWNLOAD_ERROR or '원인 미상'}",
+            }
 
         print("🤖 Gemini 영상 직접 분석 중...")
         raw, error, gemini_usage = call_gemini_on_video(video_path, get_gemini_api_key(), cancel_event=cancel_event)
@@ -1814,7 +1892,11 @@ def run_frames_only(
     if not video_path:
         video_path = download_video(url, work_dir, cancel_event=cancel_event)
         if not video_path:
-            return {"success": False, "url": url, "error": "사용자 중단" if was_cancelled(cancel_event) else "다운로드 실패"}
+            return {
+                "success": False,
+                "url": url,
+                "error": "사용자 중단" if was_cancelled(cancel_event) else f"다운로드 실패: {LAST_DOWNLOAD_ERROR or '원인 미상'}",
+            }
 
     frame_paths = extract_frames(video_path, work_dir, cancel_event=cancel_event)
     if not frame_paths:
