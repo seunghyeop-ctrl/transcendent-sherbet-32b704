@@ -1670,10 +1670,9 @@ def save_generated_result(
     if isinstance(metadata, dict):
         generated_meta.update({key: value for key, value in metadata.items() if value not in ("", None, [], {})})
     upsert_result_metadata(synthetic_url, generated_meta, config)
-    sheet_status = sync_to_google_sheet(raw_row, config)
     return {
         "success": True,
-        "sheet_status": sheet_status or "생성 초안을 저장했습니다.",
+        "sheet_status": "생성 초안을 스튜디오 이력에 저장했습니다. 원본 추출 아카이브와 Google Sheet에는 섞지 않습니다.",
         "row": export_row(raw_row),
     }
 

@@ -489,6 +489,18 @@ def normalize_result_row(row: dict[str, str]) -> dict[str, str]:
     return normalized
 
 
+def is_generated_row(row: dict[str, str]) -> bool:
+    link = (row.get("링크") or "").strip().lower()
+    if link.startswith("grommy://generated/"):
+        return True
+    meta = row.get("__meta")
+    return isinstance(meta, dict) and meta.get("source") == "generated"
+
+
+def is_extract_row(row: dict[str, str]) -> bool:
+    return bool((row.get("링크") or "").strip()) and not is_generated_row(row)
+
+
 def read_local_results_table(config: dict) -> list[dict[str, str]]:
     csv_path = extract.csv_path_for(config)
     if not csv_path.exists():
@@ -572,10 +584,13 @@ def build_row_meta_text(row: dict[str, str], cameras: list[str] | None = None) -
     return " · ".join(part for part in meta_parts if part)
 
 
-def read_results_table(config: dict) -> list[dict[str, str]]:
+def read_results_table(config: dict, include_generated: bool = False) -> list[dict[str, str]]:
     local_rows = read_local_results_table(config)
     sheet_rows = read_sheet_results_table(config)
-    return merge_result_rows(local_rows, sheet_rows)
+    rows = merge_result_rows(local_rows, sheet_rows)
+    if include_generated:
+        return rows
+    return [row for row in rows if is_extract_row(row)]
 
 
 def normalize_urls(raw_text: str) -> list[str]:
