@@ -1633,13 +1633,7 @@ def clear_all_results(config_overrides: dict | None = None) -> dict:
     return {'success': True, 'sheet_status': sheet_status}
 
 
-def save_generated_result(
-    prompt: str,
-    summary: str = "",
-    camera_tags: list[str] | None = None,
-    metadata: dict | None = None,
-    config_overrides: dict | None = None,
-) -> dict:
+def prune_generated_results(config_overrides: dict | None = None) -> dict:
     config = load_config()
     if config_overrides:
         config.update({k: v for k, v in config_overrides.items() if v not in ("", None)})
@@ -1647,34 +1641,71 @@ def save_generated_result(
 
     csv_path = csv_path_for(config)
     xlsx_path = xlsx_path_for(config)
-    unique_tags: list[str] = []
-    for tag in camera_tags or []:
-        clean = " ".join(str(tag).split()).strip()
-        if clean and clean not in unique_tags:
-            unique_tags.append(clean)
-    synthetic_url = f"grommy://generated/{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
-    raw_row = {
-        "URL": synthetic_url,
-        "PROMPT": (prompt or "").strip(),
-        "KO": (summary or "").strip(),
-        "CONTENT": (summary or "").strip(),
-        "CAMERA": " / ".join(unique_tags),
-    }
-    upsert_csv_row(raw_row, csv_path)
-    write_xlsx(csv_path, xlsx_path)
-    generated_meta = {
-        "source": "generated",
-        "saved_at": datetime.now().isoformat(timespec="seconds"),
-        "camera_tags": unique_tags,
-    }
-    if isinstance(metadata, dict):
-        generated_meta.update({key: value for key, value in metadata.items() if value not in ("", None, [], {})})
-    upsert_result_metadata(synthetic_url, generated_meta, config)
-    return {
-        "success": True,
-        "sheet_status": "생성 초안을 스튜디오 이력에 저장했습니다. 원본 추출 아카이브와 Google Sheet에는 섞지 않습니다.",
-        "row": export_row(raw_row),
-    }
+    removed = 0
+    rows: list[dict[str, str]] = []
+    removed_urls: list[str] = []
+    if csv_path.exists():
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            existing_rows = list(csv.DictReader(handle))
+        for row in existing_rows:
+            link = (row.get("링크") or "").strip()
+            if link.lower().startswith("grommy://generated/"):
+                removed += 1
+                removed_urls.append(link)
+                continue
+            rows.append({header: row.get(header, "") for header in DEFAULT_HEADERS})
+        if removed:
+            with csv_path.open("w", encoding="utf-8-sig", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=DEFAULT_HEADERS)
+                writer.writeheader()
+                writer.writerows(rows)
+            write_xlsx(csv_path, xlsx_path)
+
+    if removed_urls:
+        existing_meta = load_results_metadata(config)
+        for url in removed_urls:
+            existing_meta.pop(url, None)
+        save_results_metadata(config, existing_meta)
+
+    sheet_status = prune_generated_google_sheet_rows(config)
+    return {"success": True, "removed": removed, "sheet_status": sheet_status}
+
+
+def prune_generated_google_sheet_rows(config: dict) -> str:
+    google_sheet_id = str(config.get("google_sheet_id", "")).strip()
+    worksheet_name = str(config.get("worksheet", DEFAULT_WORKSHEET)).strip() or DEFAULT_WORKSHEET
+    credentials_path = credentials_path_for(config)
+    if not google_sheet_id:
+        return "Google Sheet ID 미설정"
+    if not credentials_path.exists():
+        return f"credentials.json 없음: {credentials_path}"
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials
+    except ImportError:
+        return "gspread/google-auth 미설치"
+
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    try:
+        creds = Credentials.from_service_account_file(str(credentials_path), scopes=scopes)
+        gc = gspread.authorize(creds)
+        sh = gc.open_by_key(google_sheet_id)
+        ws = sh.worksheet(worksheet_name)
+        values = ws.get_all_values()
+    except Exception as exc:
+        return f"Google Sheets 인증/접속 오류: {exc}"
+
+    removed = 0
+    for index in range(len(values), 1, -1):
+        row = values[index - 1]
+        link = row[3].strip() if len(row) >= 4 else ""
+        if link.lower().startswith("grommy://generated/"):
+            ws.delete_rows(index)
+            removed += 1
+    return f"Google Sheets 생성 초안 {removed}건 제거 완료"
 
 
 def delete_google_sheet_row(url: str, config: dict) -> str:

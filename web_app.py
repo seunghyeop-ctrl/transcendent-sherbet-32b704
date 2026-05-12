@@ -177,6 +177,7 @@ class AppState:
 
 
 STATE = AppState()
+GENERATED_RESULTS_PRUNED = False
 
 
 def normalize_match_text(value: str) -> str:
@@ -645,6 +646,10 @@ def run_worker(urls: list[str]) -> None:
 
 
 def compute_runtime_metrics(config: dict, snapshot: dict | None = None) -> dict:
+    global GENERATED_RESULTS_PRUNED
+    if not GENERATED_RESULTS_PRUNED:
+        extract.prune_generated_results(config)
+        GENERATED_RESULTS_PRUNED = True
     snapshot = snapshot or STATE.snapshot()
     results = [row for row in read_results_table(config) if row.get("링크")]
     camera_counter: Counter[str] = Counter()
@@ -817,34 +822,7 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 
         if parsed.path == "/save-generated":
             return_view = normalize_view_name(form.get("return_view", "").strip() or "studio")
-            index_value = form.get("chat_index", "").strip()
-            try:
-                chat_index = int(index_value)
-            except ValueError:
-                STATE.set_notice("저장할 생성 결과를 찾지 못했습니다.")
-                self.redirect(f"/?view={return_view}")
-                return
-            item = STATE.get_chat_item(chat_index)
-            if not item or not item.get("prompt"):
-                STATE.set_notice("저장할 프롬프트가 없습니다.")
-                self.redirect(f"/?view={return_view}")
-                return
-            source_request = ""
-            if chat_index > 0:
-                prev_item = STATE.get_chat_item(chat_index - 1)
-                if prev_item and prev_item.get("role") == "user":
-                    source_request = str(prev_item.get("text", "")).strip()
-            result = extract.save_generated_result(
-                prompt=item.get("prompt", ""),
-                summary=item.get("summary", "") or item.get("text", ""),
-                camera_tags=item.get("camera_tags", []) or [],
-                metadata={
-                    "source_refs": item.get("refs", []) or [],
-                    "request": source_request,
-                    "generator_meta": item.get("meta", ""),
-                },
-            )
-            STATE.set_notice(result.get("sheet_status") or "생성 결과 저장 완료")
+            STATE.set_notice("AI 생성 프롬프트 저장 기능은 제거되었습니다. 아카이브에는 영상에서 추출한 원본만 저장됩니다.")
             self.redirect(f"/?view={return_view}")
             return
 
@@ -1415,11 +1393,6 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 <div class="ai-response-prompt">
   <div class="prompt-tools">
     <button class="copy-btn">복사</button>
-    <form method="post" action="/save-generated" style="display:inline;">
-      <input type="hidden" name="return_view" value="studio">
-      <input type="hidden" name="chat_index" value="{message_index}">
-      <button class="copy-btn" type="submit">아카이브 저장</button>
-    </form>
   </div>
   {self._escape(prompt)}
 </div>'''
@@ -1744,11 +1717,6 @@ class PromptExtractorHandler(BaseHTTPRequestHandler):
 <div class="ai-response-prompt">
   <div class="prompt-tools">
     <button class="copy-btn">복사</button>
-    <form method="post" action="/save-generated" style="display:inline;">
-      <input type="hidden" name="return_view" value="{self._escape_attr(initial_view)}">
-      <input type="hidden" name="chat_index" value="{message_index}">
-      <button class="copy-btn" type="submit">아카이브 저장</button>
-    </form>
   </div>
   {self._escape(prompt)}
 </div>'''
